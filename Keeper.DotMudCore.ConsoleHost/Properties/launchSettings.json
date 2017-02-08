@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "Keeper.DotMudCore.ConsoleHost": {
+      "commandName": "Project"
+    }
+  }
+}

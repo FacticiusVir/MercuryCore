@@ -10,8 +10,7 @@ namespace Keeper.DotMudCore.ConsoleHost
     {
         static void Main(string[] args)
         {
-            var endpoint = new TcpEndpoint(5000);
-            var serviceProvider = BuildServiceProvider(endpoint);
+            var serviceProvider = BuildServiceProvider();
             SetupSerilog(serviceProvider);
 
             var server = ActivatorUtilities.CreateInstance<Server>(serviceProvider);
@@ -25,11 +24,11 @@ namespace Keeper.DotMudCore.ConsoleHost
             Console.ReadLine();
         }
 
-        private static IServiceProvider BuildServiceProvider(IEndpoint endpoint)
+        private static IServiceProvider BuildServiceProvider()
         {
             return new ServiceCollection()
                             .AddLogging()
-                            .AddSingleton(endpoint)
+                            .AddSingleton<IEndpoint>(new TcpEndpoint(5000))
                             .AddSingleton<ILoginManager, SimpleLoginManager>()
                             .BuildServiceProvider();
         }

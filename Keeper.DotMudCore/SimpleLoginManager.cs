@@ -21,7 +21,7 @@ namespace Keeper.DotMudCore
 
                 if (username == null)
                 {
-                    return LoginResult.Fail;
+                    return LoginResult.Disconnected;
                 }
 
                 isUsernameValid = !string.IsNullOrWhiteSpace(username);
@@ -32,7 +32,7 @@ namespace Keeper.DotMudCore
                 }
             }
 
-            return LoginResult.Success(username, true);
+            return LoginResult.Success(username);
         }
     }
 }

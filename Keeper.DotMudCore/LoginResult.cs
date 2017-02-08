@@ -2,21 +2,23 @@
 {
     public struct LoginResult
     {
-        public static LoginResult Success(string username, bool isNew)
-        {
-            return new LoginResult
-            {
-                Username = username,
-                IsNew = isNew
-            };
-        }
+        public static LoginResult Failed => new LoginResult { Type = LoginResultType.Failed };
 
-        public static LoginResult Fail
+        public static LoginResult Disconnected => new LoginResult { Type = LoginResultType.Disconnected };
+
+        public static LoginResult Success(string username, bool isNewRegistration = false)
+            => new LoginResult
+                {
+                    Type = isNewRegistration
+                                ? LoginResultType.Registered
+                                : LoginResultType.Authenticated,
+                    Username = username
+                };
+
+        public LoginResultType Type
         {
-            get
-            {
-                return new LoginResult();
-            }
+            get;
+            private set;
         }
 
         public string Username
@@ -25,16 +27,14 @@
             private set;
         }
 
-        public bool IsSuccess
-        {
-            get;
-            private set;
-        }
+        public bool IsSuccess => this.Type == LoginResultType.Authenticated || this.Type == LoginResultType.Registered;
+    }
 
-        public bool IsNew
-        {
-            get;
-            private set;
-        }
+    public enum LoginResultType
+    {
+        Failed,
+        Disconnected,
+        Authenticated,
+        Registered
     }
 }

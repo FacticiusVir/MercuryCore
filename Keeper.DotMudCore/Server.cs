@@ -18,22 +18,43 @@ namespace Keeper.DotMudCore
             this.endpoint = endpoint;
             this.loginManager = loginManager;
 
-            this.endpoint.NewConnection += conn => Task.Run(() => this.HandleSession(conn));
+            this.endpoint.NewConnection += conn => Task.Run(() => this.HandleConnection(conn));
 
             this.logger.LogDebug("Created {SourceContext}");
         }
 
-        private async Task HandleSession(IConnection conn)
+        private async Task HandleConnection(IConnection conn)
         {
             using (this.logger.BeginPropertyScope("Connection", conn.UniqueIdentifier))
             {
-                this.logger.LogInformation("New connection: {Connection}");
+                try
+                {
+                    this.logger.LogInformation("New connection: {Connection}");
 
-                await conn.SendAsync("Welcome to the demo server");
+                    await conn.SendAsync("Welcome to the demo server");
 
-                await this.loginManager.Login(conn);
+                    var loginResult = await this.loginManager.Login(conn);
 
-                conn.Close();
+                    if (!loginResult.IsSuccess)
+                    {
+                        this.logger.LogWarning("Login failed: {Reason}", loginResult.Type);
+
+                        conn.Close();
+
+                        return;
+                    }
+
+                    using (this.logger.BeginPropertyScope("User", loginResult.Username))
+                    {
+                        this.logger.LogInformation("{User} logged in.");
+
+                        conn.Close();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    this.logger.LogError(0, ex, "Exception thrown while processing connection");
+                }
             }
         }
 

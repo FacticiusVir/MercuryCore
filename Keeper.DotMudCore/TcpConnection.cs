@@ -52,9 +52,21 @@ namespace Keeper.DotMudCore
             await this.writer.FlushAsync();
         }
 
-        public Task<string> ReceiveAsync()
+        public async Task<string> ReceiveAsync()
         {
-            return this.reader.ReadLineAsync();
+            if (this.isClosed)
+            {
+                return null;
+            }
+
+            var message = await this.reader.ReadLineAsync();
+
+            if (message == null)
+            {
+                this.Close();
+            }
+
+            return message;
         }
 
         public void Close()

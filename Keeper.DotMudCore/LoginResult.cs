@@ -34,6 +34,7 @@
     {
         Failed,
         Disconnected,
+        Cancelled,
         Authenticated,
         Registered
     }

@@ -1,6 +1,8 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Keeper.DotMudCore
 {
@@ -8,15 +10,15 @@ namespace Keeper.DotMudCore
     {
         private readonly ILogger<Server> logger;
         private readonly IEndpoint endpoint;
-        private readonly ILoginManager loginManager;
+        private readonly SessionDelegate app;
 
-        public Server(ILoggerFactory loggerFactory,
-                        IEndpoint endpoint,
-                        ILoginManager loginManager)
+        public Server(ILogger<Server> logger,
+                        IEnumerable<IEndpoint> endpoint,
+                        IServerBuilder builder)
         {
-            this.logger = loggerFactory.CreateLogger<Server>();
-            this.endpoint = endpoint;
-            this.loginManager = loginManager;
+            this.logger = logger;
+            this.endpoint = endpoint.First();
+            this.app = builder.Build();
 
             this.endpoint.NewConnection += conn => Task.Run(() => this.HandleConnection(conn));
 
@@ -31,29 +33,19 @@ namespace Keeper.DotMudCore
                 {
                     this.logger.LogInformation("New connection: {Connection}");
 
-                    await conn.SendAsync("Welcome to the demo server");
+                    var session = new Session(conn);
 
-                    var loginResult = await this.loginManager.Login(conn);
-
-                    if (!loginResult.IsSuccess)
-                    {
-                        this.logger.LogWarning("Login failed: {Reason}", loginResult.Type);
-
-                        conn.Close();
-
-                        return;
-                    }
-
-                    using (this.logger.BeginPropertyScope("User", loginResult.Username))
-                    {
-                        this.logger.LogInformation("{User} logged in.");
-
-                        conn.Close();
-                    }
+                    await this.app(session);
                 }
                 catch (Exception ex)
                 {
                     this.logger.LogError(0, ex, "Exception thrown while processing connection");
+                }
+                finally
+                {
+                    this.logger.LogInformation("Connection closed: {Connection}");
+
+                    conn.Close();
                 }
             }
         }

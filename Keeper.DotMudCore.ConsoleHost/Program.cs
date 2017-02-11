@@ -9,7 +9,7 @@ namespace Keeper.DotMudCore.ConsoleHost
             var host = new MudHostBuilder()
                             .ConfigureServices(services =>
                             {
-                                services.AddSingleton<IEndpoint>(new TcpEndpoint(5000));
+                                services.AddSingleton<IEndpoint, TcpEndpoint>();
                             })
                             .UseStartup<Startup>()
                             .Build();

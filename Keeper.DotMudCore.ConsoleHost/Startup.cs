@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Formatting.Json;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Keeper.DotMudCore.ConsoleHost
@@ -9,6 +11,17 @@ namespace Keeper.DotMudCore.ConsoleHost
     internal class Startup
         : StartupBase
     {
+        private readonly IConfigurationRoot Configuration;
+
+        public Startup()
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json");
+
+            Configuration = builder.Build();
+        }
+
         public override void Configure(IServerBuilder server)
         {
             Log.Logger = new LoggerConfiguration()
@@ -36,6 +49,9 @@ namespace Keeper.DotMudCore.ConsoleHost
 
         public override void ConfigureServices(IServiceCollection services)
         {
+            services.AddOptions();
+            services.Configure<TcpOptions>(this.Configuration.GetSection("tcp"));
+
             services.AddSingleton<ILoginManager, SimpleLoginManager>();
         }
     }

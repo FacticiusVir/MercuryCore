@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Keeper.DotMudCore
@@ -65,8 +66,34 @@ namespace Keeper.DotMudCore
             {
                 this.Close();
             }
+            else
+            {
+                message = Sanitise(message);
+            }
 
             return message;
+        }
+
+        private string Sanitise(string message)
+        {
+            var builder = new StringBuilder();
+
+            foreach (char character in message)
+            {
+                if (character == '\b')
+                {
+                    if (builder.Length > 0)
+                    {
+                        builder.Length--;
+                    }
+                }
+                else
+                {
+                    builder.Append(character);
+                }
+            }
+
+            return builder.ToString();
         }
 
         public void Close()

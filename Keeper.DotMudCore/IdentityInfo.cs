@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Keeper.DotMudCore
+﻿namespace Keeper.DotMudCore
 {
     public struct IdentityInfo
     {

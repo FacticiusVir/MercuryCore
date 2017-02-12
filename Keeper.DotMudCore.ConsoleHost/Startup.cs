@@ -48,8 +48,7 @@ namespace Keeper.DotMudCore.ConsoleHost
 
         public override void ConfigureServices(IServiceCollection services)
         {
-            services.AddTcpEndpoint();
-            services.Configure<TcpOptions>(this.Configuration.GetSection("tcp"));
+            services.AddTcpEndpoint(this.Configuration.GetSection("tcp").Bind);
 
             services.AddSimpleLogin();
         }

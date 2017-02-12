@@ -1,8 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace Keeper.DotMudCore
+namespace Microsoft.Extensions.Logging
 {
     public static class LoggerExtensions
     {

@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Keeper.DotMudCore;
 
-namespace Keeper.DotMudCore
+namespace Microsoft.Extensions.DependencyInjection
 {
     public static class LoginExtensions
     {

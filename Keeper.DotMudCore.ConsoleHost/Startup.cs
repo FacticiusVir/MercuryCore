@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Formatting.Json;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace Keeper.DotMudCore.ConsoleHost
 {
@@ -39,20 +38,20 @@ namespace Keeper.DotMudCore.ConsoleHost
 
             server.Run(async session =>
             {
-                string username = session.GetState<IdentityInfo>().Username;
+                var identity = session.GetState<IdentityInfo>();
 
-                await session.Connection.SendAsync($"Hello {username}!");
+                await session.Connection.SendAsync($"Hello, {identity.Username}");
 
-                await Task.Delay(2000);
+                await session.Connection.ReceiveAsync();
             });
         }
 
         public override void ConfigureServices(IServiceCollection services)
         {
-            services.AddOptions();
+            services.AddTcpEndpoint();
             services.Configure<TcpOptions>(this.Configuration.GetSection("tcp"));
 
-            services.AddSingleton<ILoginManager, SimpleLoginManager>();
+            services.AddSimpleLogin();
         }
     }
 }

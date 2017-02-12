@@ -28,6 +28,7 @@ namespace Keeper.DotMudCore
             var hostingServices = services.BuildServiceProvider();
 
             services.AddLogging();
+            services.AddOptions();
 
             return new MudHost(services, hostingServices.GetRequiredService<IStartup>());
         }

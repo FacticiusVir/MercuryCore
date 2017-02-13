@@ -38,7 +38,7 @@ namespace Keeper.DotMudCore.ConsoleHost
 
             server.Run(async session =>
             {
-                var identity = session.GetState<IdentityInfo>();
+                var identity = session.GetIdentityInfo();
 
                 await session.Connection.SendAsync($"Hello, {identity.Username}");
 

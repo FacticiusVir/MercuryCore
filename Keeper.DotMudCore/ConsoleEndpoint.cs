@@ -34,9 +34,9 @@ namespace Keeper.DotMudCore
             return Task.Run(() => Console.ReadLine());
         }
 
-        Task IConnection.SendLineAsync(string message)
+        Task IConnection.SendAsync(string message)
         {
-            return Task.Run(() => Console.WriteLine($" >> {message}"));
+            return Task.Run(() => Console.Write($" >> {message}"));
         }
     }
 }

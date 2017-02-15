@@ -47,11 +47,11 @@ namespace Keeper.DotMudCore
 
         public string UniqueIdentifier => $"TCP/{this.RemoteEndPoint}/{this.connectionTime}";
 
-        public async Task SendLineAsync(string message)
+        public async Task SendAsync(string message)
         {
             try
             {
-                await this.writer.WriteLineAsync(message);
+                await this.writer.WriteAsync(message);
                 await this.writer.FlushAsync();
             }
             catch (Exception ex)

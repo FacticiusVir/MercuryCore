@@ -4,12 +4,6 @@
     {
         IConnection Connection { get; }
 
-        T GetState<T>();
-
-        bool TryGetState<T>(out T value);
-
-        void RemoveState<T>();
-
-        void SetState<T>(T value);
+        ISessionStateManager State { get; }
     }
 }

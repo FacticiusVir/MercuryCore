@@ -23,7 +23,7 @@ namespace Keeper.DotMudCore.Identity
 
             if (result.IsSuccess)
             {
-                session.SetState(new IdentityInfo(result.Username, result.Type == LoginResultType.Registered));
+                session.State.Set(new IdentityInfo(result.Username, result.Type == LoginResultType.Registered));
 
                 using (this.logger.BeginPropertyScope("Username", result.Username))
                 {

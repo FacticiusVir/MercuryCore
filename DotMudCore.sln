@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keeper.DotMudCore.ConsoleHo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keeper.DotMudCore", "Keeper.DotMudCore\Keeper.DotMudCore.csproj", "{EAC24A71-1E31-4472-983E-5AB8EC1639B1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keeper.DotMudCore.HelloWorldSample", "Keeper.DotMudCore.HelloWorldSample\Keeper.DotMudCore.HelloWorldSample.csproj", "{D41440C3-515F-4C0D-B3CD-ACCF52D48F74}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{EAC24A71-1E31-4472-983E-5AB8EC1639B1}.Release|x64.Build.0 = Release|x64
 		{EAC24A71-1E31-4472-983E-5AB8EC1639B1}.Release|x86.ActiveCfg = Release|x86
 		{EAC24A71-1E31-4472-983E-5AB8EC1639B1}.Release|x86.Build.0 = Release|x86
+		{D41440C3-515F-4C0D-B3CD-ACCF52D48F74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D41440C3-515F-4C0D-B3CD-ACCF52D48F74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D41440C3-515F-4C0D-B3CD-ACCF52D48F74}.Debug|x64.ActiveCfg = Debug|x64
+		{D41440C3-515F-4C0D-B3CD-ACCF52D48F74}.Debug|x64.Build.0 = Debug|x64
+		{D41440C3-515F-4C0D-B3CD-ACCF52D48F74}.Debug|x86.ActiveCfg = Debug|x86
+		{D41440C3-515F-4C0D-B3CD-ACCF52D48F74}.Debug|x86.Build.0 = Debug|x86
+		{D41440C3-515F-4C0D-B3CD-ACCF52D48F74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D41440C3-515F-4C0D-B3CD-ACCF52D48F74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D41440C3-515F-4C0D-B3CD-ACCF52D48F74}.Release|x64.ActiveCfg = Release|x64
+		{D41440C3-515F-4C0D-B3CD-ACCF52D48F74}.Release|x64.Build.0 = Release|x64
+		{D41440C3-515F-4C0D-B3CD-ACCF52D48F74}.Release|x86.ActiveCfg = Release|x86
+		{D41440C3-515F-4C0D-B3CD-ACCF52D48F74}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

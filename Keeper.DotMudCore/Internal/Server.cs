@@ -4,21 +4,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Keeper.DotMudCore
+namespace Keeper.DotMudCore.Internal
 {
-    public class Server
+    internal class Server
     {
         private readonly ILogger<Server> logger;
         private readonly IEndpoint endpoint;
         private readonly SessionDelegate app;
+        private readonly IServiceProvider provider;
 
         public Server(ILogger<Server> logger,
                         IEnumerable<IEndpoint> endpoint,
-                        IServerBuilder builder)
+                        IServerBuilder builder,
+                        IServiceProvider provider)
         {
             this.logger = logger;
             this.endpoint = endpoint.First();
             this.app = builder.Build();
+            this.provider = provider;
 
             this.endpoint.NewConnection += conn => Task.Run(() => this.HandleConnection(conn));
 
@@ -33,7 +36,7 @@ namespace Keeper.DotMudCore
                 {
                     this.logger.LogInformation("New connection: {Connection}");
 
-                    var session = new Session(conn);
+                    var session = new Session(this.provider, conn);
 
                     await this.app(session);
                 }

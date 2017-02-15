@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Keeper.DotMudCore
 {
-    public class SessionStateManager
+    internal class SessionStateManager
         : ISessionStateManager
     {
         private Dictionary<Type, object> sessionState = new Dictionary<Type, object>();

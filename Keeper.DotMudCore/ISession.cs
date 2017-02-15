@@ -5,5 +5,7 @@
         IConnection Connection { get; }
 
         ISessionStateManager State { get; }
+
+        IProtocolManager Protocol { get; }
     }
 }

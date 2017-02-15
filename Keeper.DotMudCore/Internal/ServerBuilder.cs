@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Keeper.DotMudCore
 {
-    public class ServerBuilder
+    internal class ServerBuilder
         : IServerBuilder
     {
         private List<Func<SessionDelegate, SessionDelegate>> middlewares = new List<Func<SessionDelegate, SessionDelegate>>();

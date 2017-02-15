@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
-namespace Keeper.DotMudCore
+namespace Keeper.DotMudCore.Identity
 {
     public class LoginMiddleware
         : IMiddleware
@@ -25,7 +25,10 @@ namespace Keeper.DotMudCore
             {
                 session.SetState(new IdentityInfo(result.Username, result.Type == LoginResultType.Registered));
 
-                await next(session);
+                using (this.logger.BeginPropertyScope("Username", result.Username))
+                {
+                    await next(session);
+                }
             }
             else
             {

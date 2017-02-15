@@ -47,31 +47,46 @@ namespace Keeper.DotMudCore
 
         public string UniqueIdentifier => $"TCP/{this.RemoteEndPoint}/{this.connectionTime}";
 
-        public async Task SendAsync(string message)
+        public async Task SendLineAsync(string message)
         {
-            await this.writer.WriteLineAsync(message);
-            await this.writer.FlushAsync();
+            try
+            {
+                await this.writer.WriteLineAsync(message);
+                await this.writer.FlushAsync();
+            }
+            catch (Exception ex)
+            {
+                this.Close();
+
+                throw new ClientDisconnectedException(ex);
+            }
         }
 
-        public async Task<string> ReceiveAsync()
+        public async Task<string> ReceiveLineAsync()
         {
-            if (this.isClosed)
-            {
-                return null;
-            }
+            string message = null;
 
-            var message = await this.reader.ReadLineAsync();
+            try
+            {
+                message = await this.reader.ReadLineAsync();
+            }
+            catch (Exception ex)
+            {
+                this.Close();
+
+                throw new ClientDisconnectedException(ex);
+            }
 
             if (message == null)
             {
                 this.Close();
+
+                throw new ClientDisconnectedException();
             }
             else
             {
-                message = Sanitise(message);
+                return Sanitise(message);
             }
-
-            return message;
         }
 
         private string Sanitise(string message)

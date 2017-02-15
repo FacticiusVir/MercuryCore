@@ -4,9 +4,9 @@ namespace Keeper.DotMudCore
 {
     public interface IConnection
     {
-        Task SendAsync(string message);
+        Task SendLineAsync(string message);
 
-        Task<string> ReceiveAsync();
+        Task<string> ReceiveLineAsync();
 
         void Close();
 

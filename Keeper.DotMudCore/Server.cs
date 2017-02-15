@@ -37,6 +37,10 @@ namespace Keeper.DotMudCore
 
                     await this.app(session);
                 }
+                catch(ClientDisconnectedException)
+                {
+                    this.logger.LogWarning("Client disconnected unexpectedly");
+                }
                 catch (Exception ex)
                 {
                     this.logger.LogError(0, ex, "Exception thrown while processing connection");

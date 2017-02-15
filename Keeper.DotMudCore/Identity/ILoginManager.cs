@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Keeper.DotMudCore
+namespace Keeper.DotMudCore.Identity
 {
     public interface ILoginManager
     {

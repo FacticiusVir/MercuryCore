@@ -1,4 +1,4 @@
-﻿namespace Keeper.DotMudCore
+﻿namespace Keeper.DotMudCore.Identity
 {
     public struct IdentityInfo
     {

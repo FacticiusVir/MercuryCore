@@ -1,10 +1,8 @@
-﻿namespace Keeper.DotMudCore
+﻿namespace Keeper.DotMudCore.Identity
 {
     public struct LoginResult
     {
         public static LoginResult Failed => new LoginResult { Type = LoginResultType.Failed };
-
-        public static LoginResult Disconnected => new LoginResult { Type = LoginResultType.Disconnected };
 
         public static LoginResult Success(string username, bool isNewRegistration = false)
             => new LoginResult
@@ -33,7 +31,6 @@
     public enum LoginResultType
     {
         Failed,
-        Disconnected,
         Cancelled,
         Authenticated,
         Registered

@@ -29,12 +29,12 @@ namespace Keeper.DotMudCore
             this.closedHandle.Set();
         }
 
-        Task<string> IConnection.ReceiveAsync()
+        Task<string> IConnection.ReceiveLineAsync()
         {
             return Task.Run(() => Console.ReadLine());
         }
 
-        Task IConnection.SendAsync(string message)
+        Task IConnection.SendLineAsync(string message)
         {
             return Task.Run(() => Console.WriteLine($" >> {message}"));
         }

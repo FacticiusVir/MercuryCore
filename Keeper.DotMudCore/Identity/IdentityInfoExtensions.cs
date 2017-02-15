@@ -1,4 +1,6 @@
-﻿namespace Keeper.DotMudCore
+﻿using Keeper.DotMudCore.Identity;
+
+namespace Keeper.DotMudCore
 {
     public static class IdentityInfoExtensions
     {

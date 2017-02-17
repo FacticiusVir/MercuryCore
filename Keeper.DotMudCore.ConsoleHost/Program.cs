@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-namespace Keeper.DotMudCore.ConsoleHost
+﻿namespace Keeper.DotMudCore
 {
     class Program
     {

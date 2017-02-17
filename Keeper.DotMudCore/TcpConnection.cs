@@ -16,6 +16,7 @@ namespace Keeper.DotMudCore
         private readonly long connectionTime;
 
         private bool isClosed;
+        private NetworkStream stream;
 
         public TcpConnection(TcpClient client)
         {
@@ -26,7 +27,8 @@ namespace Keeper.DotMudCore
             var stream = client.GetStream();
 
             this.reader = new StreamReader(stream);
-            this.writer = new StreamWriter(stream);
+            this.writer = new StreamWriter(stream, Encoding.ASCII);
+            this.stream = stream;
 
             this.connectionTime = DateTime.UtcNow.Ticks;
         }
@@ -47,12 +49,41 @@ namespace Keeper.DotMudCore
 
         public string UniqueIdentifier => $"TCP/{this.RemoteEndPoint}/{this.connectionTime}";
 
+        public async Task SendAsync(byte[] data, int offset, int count)
+        {
+            try
+            {
+                await this.stream.WriteAsync(data, offset, count);
+                await this.stream.FlushAsync();
+            }
+            catch (Exception ex)
+            {
+                this.Close();
+
+                throw new ClientDisconnectedException(ex);
+            }
+        }
+
         public async Task SendAsync(string message)
         {
             try
             {
                 await this.writer.WriteAsync(message);
                 await this.writer.FlushAsync();
+            }
+            catch (Exception ex)
+            {
+                this.Close();
+
+                throw new ClientDisconnectedException(ex);
+            }
+        }
+
+        public async Task<int> ReceiveAsync(byte[] data, int offset, int count)
+        {
+            try
+            {
+                return await this.stream.ReadAsync(data, offset, count);
             }
             catch (Exception ex)
             {

@@ -4,6 +4,6 @@ namespace Keeper.DotMudCore
 {
     public interface IMiddleware
     {
-        Task Invoke(ISession connection);
+        Task Invoke(ISession session);
     }
 }

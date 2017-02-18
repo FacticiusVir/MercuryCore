@@ -12,6 +12,18 @@ namespace Keeper.DotMudCore.ConsoleHost
     {
         private readonly IConfigurationRoot Configuration;
 
+        static Startup()
+        {
+            Log.Logger = new LoggerConfiguration()
+                   .Enrich.FromLogContext()
+                   .WriteTo.ColoredConsole()
+                   .WriteTo.File(new JsonFormatter(), ".\\log.txt")
+#if DEBUG
+                                                            .MinimumLevel.Debug()
+#endif
+                                                            .CreateLogger();
+        }
+
         public Startup()
         {
             var builder = new ConfigurationBuilder()
@@ -21,18 +33,20 @@ namespace Keeper.DotMudCore.ConsoleHost
             Configuration = builder.Build();
         }
 
+        public override void ConfigureServices(IServiceCollection services)
+        {
+            services.AddTcpEndpoint(this.Configuration.GetSection("tcp").Bind);
+
+            services.AddSimpleLogin();
+
+            services.AddMotd(options => options.Message = "Welcome to the DotMudCore test server!");
+        }
+
         public override void Configure(IServerBuilder server)
         {
-            Log.Logger = new LoggerConfiguration()
-                            .Enrich.FromLogContext()
-                            .WriteTo.ColoredConsole()
-                            .WriteTo.File(new JsonFormatter(), ".\\log.txt")
-#if DEBUG
-                                                            .MinimumLevel.Debug()
-#endif
-                                                            .CreateLogger();
-
             server.Services.GetService<ILoggerFactory>().AddSerilog();
+
+            server.UseMotd();
 
             server.UseLogin();
 
@@ -44,13 +58,6 @@ namespace Keeper.DotMudCore.ConsoleHost
 
                 await session.Connection.ReceiveLineAsync();
             });
-        }
-
-        public override void ConfigureServices(IServiceCollection services)
-        {
-            services.AddTcpEndpoint(this.Configuration.GetSection("tcp").Bind);
-
-            services.AddSimpleLogin();
         }
     }
 }

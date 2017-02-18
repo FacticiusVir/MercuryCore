@@ -15,7 +15,7 @@ namespace Keeper.DotMudCore
 
     public static class ConnectionExtensions
     {
-        public static Task SendLineAsync(this IConnection connection, string message)
+        public static Task SendLineAsync(this IConnection connection, string message = "")
         {
             return connection.SendAsync(message + "\n\r");
         }

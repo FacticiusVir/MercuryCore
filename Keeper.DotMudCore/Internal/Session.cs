@@ -1,5 +1,6 @@
 ﻿using Keeper.DotMudCore.Protocols;
 using Keeper.DotMudCore.Protocols.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 
 namespace Keeper.DotMudCore.Internal
@@ -17,10 +18,10 @@ namespace Keeper.DotMudCore.Internal
         {
             this.Connection = connection;
 
-            var protocol = new ProtocolManager(provider, connection);
+            var protocol = ActivatorUtilities.CreateInstance<ProtocolManager>(provider, connection);
 
-            protocol.MarkSupport<PlainAscii>();
-            protocol.MakeActiveAsync<PlainAscii>().Wait();
+            protocol.MarkSupport<IPlainAscii, PlainAscii>();
+            protocol.MakeActiveAsync<IPlainAscii>().Wait();
 
             this.Protocol = protocol;
         }

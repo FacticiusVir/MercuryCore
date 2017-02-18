@@ -46,6 +46,8 @@ namespace Keeper.DotMudCore.ConsoleHost
         {
             server.Services.GetService<ILoggerFactory>().AddSerilog();
 
+            server.UseTelnet();
+
             server.UseMotd();
 
             server.UseLogin();

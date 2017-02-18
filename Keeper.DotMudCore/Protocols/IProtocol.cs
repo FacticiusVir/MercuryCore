@@ -7,5 +7,7 @@ namespace Keeper.DotMudCore.Protocols
         Task SendAsync(string message);
 
         Task<string> ReceiveLineAsync();
+
+        Task MakeActiveAsync();
     }
 }

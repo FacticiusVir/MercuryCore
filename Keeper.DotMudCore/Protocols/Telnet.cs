@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 
 namespace Keeper.DotMudCore.Protocols.Internal
 {
-    internal class PlainAscii
-        : IPlainAscii
+    internal class Telnet
+        : ITelnet
     {
         private readonly IConnection connection;
         private readonly IProtocolManagerControl protocolControl;
@@ -17,7 +17,7 @@ namespace Keeper.DotMudCore.Protocols.Internal
         private int receiveBufferCount = 0;
         private bool receiveLineWaiting = false;
 
-        public PlainAscii(IProtocolManagerControl protocolControl, IConnection connection)
+        public Telnet(IProtocolManagerControl protocolControl, IConnection connection)
         {
             this.connection = connection;
             this.protocolControl = protocolControl;
@@ -58,7 +58,7 @@ namespace Keeper.DotMudCore.Protocols.Internal
 
                 this.receiveLineWaiting = false;
 
-                int offset = lineCount + newLineSize - 1;
+                int offset = lineCount + newLineSize;
 
                 for (int index = 0; index + offset < this.receiveBufferCount; index++)
                 {
@@ -76,27 +76,12 @@ namespace Keeper.DotMudCore.Protocols.Internal
             }
         }
 
-        public async Task SendAsync(string message)
-        {
-            await MakeActiveAsync();
-
-            using (await this.sendLock.LockAsync())
-            {
-                await this.connection.SendAsync(Encoding.ASCII.GetBytes(message));
-            }
-        }
-
-        public async Task MakeActiveAsync()
-        {
-            await this.protocolControl.MakeActiveAsync(this);
-        }
-
         private (int lineCount, int newLineSize) ScanForNewLine(int offset, int count)
         {
             int lineCount = offset;
             int newLineSize = 1;
 
-            while (lineCount < count && !this.receiveLineWaiting)
+            while(lineCount < count && !this.receiveLineWaiting)
             {
                 if (this.receiveBuffer[lineCount] == '\n')
                 {
@@ -115,6 +100,21 @@ namespace Keeper.DotMudCore.Protocols.Internal
             }
 
             return (lineCount, newLineSize);
+        }
+
+        public async Task SendAsync(string message)
+        {
+            await MakeActiveAsync();
+
+            using (await this.sendLock.LockAsync())
+            {
+                await this.connection.SendAsync(Encoding.ASCII.GetBytes(message));
+            }
+        }
+
+        public async Task MakeActiveAsync()
+        {
+            await this.protocolControl.MakeActiveAsync(this);
         }
     }
 }

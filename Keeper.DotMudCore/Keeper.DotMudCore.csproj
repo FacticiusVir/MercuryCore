@@ -16,6 +16,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="1.1.0" />
     <PackageReference Include="Nito.AsyncEx.Coordination" Version="1.0.2" />
+    <PackageReference Include="System.Threading.Tasks.Dataflow" Version="4.7.0" />
     <PackageReference Include="System.ValueTuple" Version="4.3.0" />
   </ItemGroup>
 

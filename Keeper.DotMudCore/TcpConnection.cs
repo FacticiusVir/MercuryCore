@@ -2,7 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Keeper.DotMudCore
@@ -77,26 +77,18 @@ namespace Keeper.DotMudCore
             }
         }
 
-        private string Sanitise(string message)
+        public async Task<int> ReceiveAsync(byte[] data, int offset, int count, CancellationToken token)
         {
-            var builder = new StringBuilder();
-
-            foreach (char character in message)
+            try
             {
-                if (character == '\b')
-                {
-                    if (builder.Length > 0)
-                    {
-                        builder.Length--;
-                    }
-                }
-                else
-                {
-                    builder.Append(character);
-                }
+                return await this.stream.ReadAsync(data, offset, count, token);
             }
+            catch (Exception ex)
+            {
+                this.Close();
 
-            return builder.ToString();
+                throw new ClientDisconnectedException(ex);
+            }
         }
 
         public void Close()

@@ -2,7 +2,12 @@
 {
     public interface IProtocolManager
     {
-        void MarkSupport<T>(bool isSupported = true) where T : class, IProtocol;
+        void MarkSupport<T, V>()
+            where T : class, IProtocol
+            where V: T;
+
+        void MarkNotSupported<T>()
+            where T : class, IProtocol;
 
         ProtocolSupport GetSupport<T>() where T : class, IProtocol;
 

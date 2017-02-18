@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace Keeper.DotMudCore
 {
@@ -7,6 +8,8 @@ namespace Keeper.DotMudCore
         Task SendAsync(byte[] data, int offset, int count);
 
         Task<int> ReceiveAsync(byte[] data, int offset, int count);
+
+        Task<int> ReceiveAsync(byte[] data, int offset, int count, CancellationToken token);
 
         void Close();
 

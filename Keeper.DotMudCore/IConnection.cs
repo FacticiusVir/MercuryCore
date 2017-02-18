@@ -4,9 +4,9 @@ namespace Keeper.DotMudCore
 {
     public interface IConnection
     {
-        Task SendAsync(string message);
+        Task SendAsync(byte[] data, int offset, int count);
 
-        Task<string> ReceiveLineAsync();
+        Task<int> ReceiveAsync(byte[] data, int offset, int count);
 
         void Close();
 
@@ -15,9 +15,14 @@ namespace Keeper.DotMudCore
 
     public static class ConnectionExtensions
     {
-        public static Task SendLineAsync(this IConnection connection, string message = "")
+        public static Task SendAsync(this IConnection connection, byte[] data, int offset = 0)
         {
-            return connection.SendAsync(message + "\n\r");
+            return connection.SendAsync(data, offset, data.Length - offset);
+        }
+
+        public static Task<int> ReceiveAsync(this IConnection connection, byte[] data, int offset = 0)
+        {
+            return connection.ReceiveAsync(data, offset, data.Length - offset);
         }
     }
 }

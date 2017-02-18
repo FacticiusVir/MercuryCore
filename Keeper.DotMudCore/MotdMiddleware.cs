@@ -17,7 +17,7 @@ namespace Keeper.DotMudCore
 
         public async Task Invoke(ISession session)
         {
-            await session.Connection.SendLineAsync(options.Message);
+            await session.SendLineAsync(options.Message);
 
             await this.next(session);
         }

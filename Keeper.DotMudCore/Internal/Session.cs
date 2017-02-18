@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Keeper.DotMudCore.Protocols;
+using Keeper.DotMudCore.Protocols.Internal;
 using System;
 
 namespace Keeper.DotMudCore.Internal
@@ -15,7 +16,13 @@ namespace Keeper.DotMudCore.Internal
         public Session(IServiceProvider provider, IConnection connection)
         {
             this.Connection = connection;
-            this.Protocol = new ProtocolManager(provider, connection);
+
+            var protocol = new ProtocolManager(provider, connection);
+
+            protocol.MarkSupport<PlainAscii>();
+            protocol.MakeActiveAsync<PlainAscii>().Wait();
+
+            this.Protocol = protocol;
         }
 
         public ISessionStateManager State

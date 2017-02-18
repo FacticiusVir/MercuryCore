@@ -1,4 +1,4 @@
-﻿namespace Keeper.DotMudCore
+﻿namespace Keeper.DotMudCore.Protocols
 {
     public enum ProtocolSupport
     {

@@ -11,8 +11,8 @@ namespace Keeper.DotMudCore.HelloWorldSample
                             .ConfigureServices(services => services.AddTcpEndpoint(options => options.Port = 5000))
                             .Configure(server => server.Run(async session =>
                             {
-                                await session.Connection.SendLineAsync("Hello World!");
-                                await session.Connection.ReceiveLineAsync();
+                                await session.SendLineAsync("Hello World!");
+                                await session.ReceiveLineAsync();
                             }))
                             .Build();
 

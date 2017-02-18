@@ -15,7 +15,7 @@ namespace Keeper.DotMudCore.Identity
             this.userManager = userManager;
         }
 
-        public async Task<LoginResult> Login(IConnection connection)
+        public async Task<LoginResult> Login(ISession session)
         {
             this.logger.LogDebug("Logging in");
 
@@ -24,11 +24,11 @@ namespace Keeper.DotMudCore.Identity
 
             while (!isUsernameValid)
             {
-                await connection.SendLineAsync("Please enter your username:");
+                await session.SendLineAsync("Please enter your username:");
 
                 this.logger.LogDebug("Receiving username");
 
-                username = await connection.ReceiveLineAsync();
+                username = await session.ReceiveLineAsync();
 
                 this.logger.LogDebug("Username received: {SubmittedUsername}", username);
 
@@ -38,7 +38,7 @@ namespace Keeper.DotMudCore.Identity
                 {
                     this.logger.LogDebug("Submitted username not valid");
 
-                    await connection.SendLineAsync("Invalid username");
+                    await session.SendLineAsync("Invalid username");
                 }
                 else
                 {
@@ -48,19 +48,19 @@ namespace Keeper.DotMudCore.Identity
                     {
                         this.logger.LogDebug("User found");
 
-                        await connection.SendLineAsync("Please enter password");
+                        await session.SendLineAsync("Please enter password");
 
-                        string password = await connection.ReceiveLineAsync();
+                        string password = await session.ReceiveLineAsync();
 
                         if (await this.userManager.CheckUserAsync(username, password))
                         {
                             this.logger.LogInformation("{Username} logged in successfully", username);
-                            
+
                             return LoginResult.Success(username);
                         }
                         else
                         {
-                            await connection.SendLineAsync("Password incorrect");
+                            await session.SendLineAsync("Password incorrect");
 
                             this.logger.LogWarning("{Username} login failed", username);
 
@@ -71,7 +71,7 @@ namespace Keeper.DotMudCore.Identity
                     {
                         this.logger.LogDebug("No existing user found");
 
-                        await connection.SendLineAsync("Username not found - please enter a password to register, or blank to re-enter username");
+                        await session.SendLineAsync("Username not found - please enter a password to register, or blank to re-enter username");
 
                         bool isPasswordValid = false;
 
@@ -79,7 +79,7 @@ namespace Keeper.DotMudCore.Identity
 
                         while (!isPasswordValid && isUsernameValid)
                         {
-                            password = await connection.ReceiveLineAsync();
+                            password = await session.ReceiveLineAsync();
 
                             this.logger.LogDebug("Password received");
 
@@ -89,9 +89,9 @@ namespace Keeper.DotMudCore.Identity
                             }
                             else
                             {
-                                await connection.SendLineAsync("Please confirm password");
+                                await session.SendLineAsync("Please confirm password");
 
-                                string passwordConfirmation = await connection.ReceiveLineAsync();
+                                string passwordConfirmation = await session.ReceiveLineAsync();
 
                                 this.logger.LogDebug("Password confirmation received");
 
@@ -103,7 +103,7 @@ namespace Keeper.DotMudCore.Identity
                                 }
                                 else
                                 {
-                                    await connection.SendLineAsync("Passwords do not match, please re-enter password");
+                                    await session.SendLineAsync("Passwords do not match, please re-enter password");
                                     this.logger.LogDebug("Passwords do not match");
                                 }
                             }

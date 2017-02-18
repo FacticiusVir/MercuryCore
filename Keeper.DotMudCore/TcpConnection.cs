@@ -11,6 +11,7 @@ namespace Keeper.DotMudCore
         : IConnection
     {
         private TcpClient client;
+        private NetworkStream stream;
         private StreamReader reader;
         private StreamWriter writer;
         private readonly long connectionTime;
@@ -23,10 +24,10 @@ namespace Keeper.DotMudCore
 
             this.RemoteEndPoint = this.client.Client.RemoteEndPoint;
 
-            var stream = client.GetStream();
+            this.stream = client.GetStream();
 
-            this.reader = new StreamReader(stream);
-            this.writer = new StreamWriter(stream);
+            this.writer = new StreamWriter(this.stream);
+            this.reader = new StreamReader(this.stream);
 
             this.connectionTime = DateTime.UtcNow.Ticks;
         }
@@ -47,12 +48,12 @@ namespace Keeper.DotMudCore
 
         public string UniqueIdentifier => $"TCP/{this.RemoteEndPoint}/{this.connectionTime}";
 
-        public async Task SendAsync(string message)
+        public async Task SendAsync(byte[] data, int offset, int count)
         {
             try
             {
-                await this.writer.WriteAsync(message);
-                await this.writer.FlushAsync();
+                await this.stream.WriteAsync(data, offset, count);
+                await this.stream.FlushAsync();
             }
             catch (Exception ex)
             {
@@ -62,30 +63,17 @@ namespace Keeper.DotMudCore
             }
         }
 
-        public async Task<string> ReceiveLineAsync()
+        public async Task<int> ReceiveAsync(byte[] data, int offset, int count)
         {
-            string message = null;
-
             try
             {
-                message = await this.reader.ReadLineAsync();
+                return await this.stream.ReadAsync(data, offset, count);
             }
             catch (Exception ex)
             {
                 this.Close();
 
                 throw new ClientDisconnectedException(ex);
-            }
-
-            if (message == null)
-            {
-                this.Close();
-
-                throw new ClientDisconnectedException();
-            }
-            else
-            {
-                return Sanitise(message);
             }
         }
 

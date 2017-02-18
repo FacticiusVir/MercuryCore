@@ -4,6 +4,6 @@ namespace Keeper.DotMudCore.Identity
 {
     public interface ILoginManager
     {
-        Task<LoginResult> Login(IConnection connection);
+        Task<LoginResult> Login(ISession session);
     }
 }

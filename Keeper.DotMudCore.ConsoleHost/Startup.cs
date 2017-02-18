@@ -54,9 +54,9 @@ namespace Keeper.DotMudCore.ConsoleHost
             {
                 var identity = session.GetIdentityInfo();
 
-                await session.Connection.SendLineAsync($"Hello, {identity.Username}");
+                await session.SendLineAsync($"Hello, {identity.Username}");
 
-                await session.Connection.ReceiveLineAsync();
+                await session.ReceiveLineAsync();
             });
         }
     }

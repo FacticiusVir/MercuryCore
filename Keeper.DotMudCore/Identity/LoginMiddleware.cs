@@ -19,7 +19,7 @@ namespace Keeper.DotMudCore.Identity
 
         public async Task Invoke(ISession session)
         {
-            var result = await this.loginManager.Login(session.Connection);
+            var result = await this.loginManager.Login(session);
 
             if (result.IsSuccess)
             {

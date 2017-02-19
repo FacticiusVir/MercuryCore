@@ -57,10 +57,18 @@ namespace Keeper.DotMudCore.ConsoleHost
             {
                 var identity = session.GetIdentityInfo();
 
-                await session.SendLineAsync($"Hello, {identity.Username}");
+                var telnet = session.Protocol.Get<ILinemodeTelnet>();
 
-                await session.ReceiveLineAsync();
+                await telnet.SendAsync($"Hello, ");
+
+                await telnet.SendAsync(AnsiColour.Cyan, identity.Username);
+
+                await telnet.SendLineAsync();
+
+                await telnet.ReceiveLineAsync();
             });
+
+            server.Services.GetService<Identity.IUserManager>().CreateUserAsync("TestUser", "test").Wait();
         }
     }
 }

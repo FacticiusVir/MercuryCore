@@ -3,7 +3,7 @@
 namespace Keeper.DotMudCore.Protocols
 {
     public interface ILinemodeTelnet
-        : IProtocol
+        : IAnsiProtocol
     {
         Task SendDoAsync(TelnetOption option);
 

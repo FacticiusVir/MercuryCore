@@ -13,4 +13,12 @@ namespace Keeper.DotMudCore.Protocols
 
         IDisposable CreateActiveSession();
     }
+
+    public static class ProtocolExtensions
+    {
+        public static Task SendLineAsync(this IProtocol protocol, string message = "")
+        {
+            return protocol.SendAsync(message + "\r\n");
+        }
+    }
 }

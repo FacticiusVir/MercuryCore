@@ -58,18 +58,6 @@ namespace Keeper.DotMudCore.Dataflow
                 }
             }, new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 1 });
 
-            accumulator.Completion.ContinueWith(task =>
-            {
-                if (task.Status == TaskStatus.Faulted)
-                {
-                    ((IDataflowBlock)output).Fault(task.Exception);
-                }
-                else
-                {
-                    output.Complete();
-                }
-            });
-
             return DataflowBlock.Encapsulate(accumulator, output);
         }
     }

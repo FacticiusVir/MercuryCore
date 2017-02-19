@@ -1,6 +1,7 @@
 ﻿namespace Keeper.DotMudCore.Protocols
 {
     public enum TelnetCommand
+        : byte
     {
         SE = 240,
         NOP = 241,

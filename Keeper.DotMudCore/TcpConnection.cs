@@ -17,6 +17,7 @@ namespace Keeper.DotMudCore
         private BufferBlock<ArraySegment<byte>> receiveBlock;
 
         private bool isClosed;
+        private TaskCompletionSource<object> closed = new TaskCompletionSource<object>();
 
         public TcpConnection(TcpClient client)
         {
@@ -49,6 +50,8 @@ namespace Keeper.DotMudCore
             }
         }
 
+        public Task Closed => this.closed.Task;
+
         public string UniqueIdentifier => $"TCP/{this.RemoteEndPoint}/{this.connectionTime}";
 
         public ITargetBlock<ArraySegment<byte>> Send => this.sendBlock;
@@ -62,11 +65,9 @@ namespace Keeper.DotMudCore
                 await this.stream.WriteAsync(data.Array, data.Offset, data.Count);
                 await this.stream.FlushAsync();
             }
-            catch (Exception ex)
+            catch
             {
                 this.Close();
-
-                throw new ClientDisconnectedException(ex);
             }
         }
 
@@ -80,20 +81,20 @@ namespace Keeper.DotMudCore
 
                     int count = await this.stream.ReadAsync(data, 0, data.Length);
 
-                    if(count == 0)
+                    if (count == 0)
                     {
-                        throw new ClientDisconnectedException();
+                        this.Close();
                     }
+                    else
+                    {
+                        await this.receiveBlock.SendAsync(new ArraySegment<byte>(data, 0, count));
 
-                    await this.receiveBlock.SendAsync(new ArraySegment<byte>(data, 0, count));
-
-                    this.BeginReceive();
+                        this.BeginReceive();
+                    }
                 }
-                catch (Exception ex)
+                catch
                 {
                     this.Close();
-
-                    ((IDataflowBlock)this.receiveBlock).Fault(new ClientDisconnectedException(ex));
                 }
             });
         }
@@ -106,6 +107,8 @@ namespace Keeper.DotMudCore
 
                 this.client.Dispose();
                 this.client = null;
+
+                this.closed.SetException(new ClientDisconnectedException());
             }
         }
     }

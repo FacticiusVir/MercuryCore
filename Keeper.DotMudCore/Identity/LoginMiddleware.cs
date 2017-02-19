@@ -29,6 +29,8 @@ namespace Keeper.DotMudCore.Identity
                 {
                     await next(session);
                 }
+
+                session.State.Remove<IdentityInfo>();
             }
             else
             {

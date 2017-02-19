@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
@@ -39,7 +40,7 @@ namespace Keeper.DotMudCore.Protocols.Internal
 
                 if (bytes.Count == 2)
                 {
-                    this.logger.LogDebug($"IAC {(TelnetCommand)bytes[0]} {bytes[1]}");
+                    this.logger.LogDebug($"Received IAC {(TelnetCommand)bytes[0]} {(TelnetOption)bytes[1]}");
 
                     return true;
                 }
@@ -52,7 +53,22 @@ namespace Keeper.DotMudCore.Protocols.Internal
         {
             await MakeActiveAsync();
 
-            return await this.lineAccumulator.ReceiveAsync();
+            var tokenSource = new CancellationTokenSource();
+
+            var receiveTask = this.lineAccumulator.ReceiveAsync(tokenSource.Token);
+
+            Task.WaitAny(this.connection.Closed, receiveTask);
+
+            if (this.connection.Closed.IsCompleted)
+            {
+                tokenSource.Cancel();
+
+                throw new ClientDisconnectedException();
+            }
+            else
+            {
+                return receiveTask.Result;
+            }
         }
 
         public async Task SendAsync(string message)
@@ -69,7 +85,7 @@ namespace Keeper.DotMudCore.Protocols.Internal
 
         IDisposable IProtocol.CreateActiveSession()
         {
-            return this.connection.Receive.LinkTo(this.lineAccumulator, new DataflowLinkOptions { PropagateCompletion = true });
+            return this.connection.Receive.LinkTo(this.lineAccumulator);
         }
     }
 }

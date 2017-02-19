@@ -1,6 +1,7 @@
 ﻿using Keeper.DotMudCore.Dataflow;
 using System;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
@@ -24,7 +25,22 @@ namespace Keeper.DotMudCore.Protocols.Internal
         {
             await MakeActiveAsync();
 
-            return await this.lineAccumulator.ReceiveAsync();
+            var tokenSource = new CancellationTokenSource();
+
+            var receiveTask = this.lineAccumulator.ReceiveAsync(tokenSource.Token);
+
+            Task.WaitAny(this.connection.Closed, receiveTask);
+
+            if (this.connection.Closed.IsCompleted)
+            {
+                tokenSource.Cancel();
+
+                throw new ClientDisconnectedException();
+            }
+            else
+            {
+                return receiveTask.Result;
+            }
         }
 
         public async Task SendAsync(string message)

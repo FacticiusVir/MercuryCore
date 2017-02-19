@@ -21,7 +21,6 @@ namespace Keeper.DotMudCore.Internal
             var protocol = ActivatorUtilities.CreateInstance<ProtocolManager>(provider, connection);
 
             protocol.MarkSupport<IPlainAscii, PlainAscii>();
-            protocol.MakeActiveAsync<IPlainAscii>().Wait();
 
             this.Protocol = protocol;
         }

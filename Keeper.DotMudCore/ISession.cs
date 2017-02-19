@@ -14,9 +14,11 @@ namespace Keeper.DotMudCore
 
     public static class SessionExtensions
     {
-        public static Task SendAsync(this ISession session, string message)
+        public async static Task SendAsync(this ISession session, string message)
         {
-            return session.Protocol.Active.SendAsync(message);
+            await EnsureActiveProtocol(session);
+
+            await session.Protocol.Active.SendAsync(message);
         }
 
         public static Task SendLineAsync(this ISession session, string message = "")
@@ -24,9 +26,19 @@ namespace Keeper.DotMudCore
             return session.SendAsync(message + "\r\n");
         }
 
-        public static Task<string> ReceiveLineAsync(this ISession session)
+        public async static Task<string> ReceiveLineAsync(this ISession session)
         {
-            return session.Protocol.Active.ReceiveLineAsync();
+            await EnsureActiveProtocol(session);
+
+            return await session.Protocol.Active.ReceiveLineAsync();
+        }
+
+        private async static Task EnsureActiveProtocol(ISession session)
+        {
+            if (session.Protocol.Active == null)
+            {
+                await session.Protocol.Get<IPlainAscii>().MakeActiveAsync();
+            }
         }
     }
 }

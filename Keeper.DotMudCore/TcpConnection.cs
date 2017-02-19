@@ -1,9 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 
 namespace Keeper.DotMudCore
 {
@@ -12,9 +11,10 @@ namespace Keeper.DotMudCore
     {
         private TcpClient client;
         private NetworkStream stream;
-        private StreamReader reader;
-        private StreamWriter writer;
         private readonly long connectionTime;
+
+        private ActionBlock<ArraySegment<byte>> sendBlock;
+        private BufferBlock<ArraySegment<byte>> receiveBlock;
 
         private bool isClosed;
 
@@ -26,10 +26,13 @@ namespace Keeper.DotMudCore
 
             this.stream = client.GetStream();
 
-            this.writer = new StreamWriter(this.stream);
-            this.reader = new StreamReader(this.stream);
-
             this.connectionTime = DateTime.UtcNow.Ticks;
+
+            this.sendBlock = new ActionBlock<ArraySegment<byte>>(this.SendAsync, new ExecutionDataflowBlockOptions { BoundedCapacity = 1, MaxDegreeOfParallelism = 1 });
+
+            this.receiveBlock = new BufferBlock<ArraySegment<byte>>(new DataflowBlockOptions { BoundedCapacity = DataflowBlockOptions.Unbounded });
+
+            this.BeginReceive();
         }
 
         public EndPoint RemoteEndPoint
@@ -48,11 +51,15 @@ namespace Keeper.DotMudCore
 
         public string UniqueIdentifier => $"TCP/{this.RemoteEndPoint}/{this.connectionTime}";
 
-        public async Task SendAsync(byte[] data, int offset, int count)
+        public ITargetBlock<ArraySegment<byte>> Send => this.sendBlock;
+
+        public IReceivableSourceBlock<ArraySegment<byte>> Receive => this.receiveBlock;
+
+        public async Task SendAsync(ArraySegment<byte> data)
         {
             try
             {
-                await this.stream.WriteAsync(data, offset, count);
+                await this.stream.WriteAsync(data.Array, data.Offset, data.Count);
                 await this.stream.FlushAsync();
             }
             catch (Exception ex)
@@ -63,32 +70,32 @@ namespace Keeper.DotMudCore
             }
         }
 
-        public async Task<int> ReceiveAsync(byte[] data, int offset, int count)
+        public void BeginReceive()
         {
-            try
+            Task.Run(async () =>
             {
-                return await this.stream.ReadAsync(data, offset, count);
-            }
-            catch (Exception ex)
-            {
-                this.Close();
+                try
+                {
+                    var data = new byte[1024];
 
-                throw new ClientDisconnectedException(ex);
-            }
-        }
+                    int count = await this.stream.ReadAsync(data, 0, data.Length);
 
-        public async Task<int> ReceiveAsync(byte[] data, int offset, int count, CancellationToken token)
-        {
-            try
-            {
-                return await this.stream.ReadAsync(data, offset, count, token);
-            }
-            catch (Exception ex)
-            {
-                this.Close();
+                    if(count == 0)
+                    {
+                        throw new ClientDisconnectedException();
+                    }
 
-                throw new ClientDisconnectedException(ex);
-            }
+                    await this.receiveBlock.SendAsync(new ArraySegment<byte>(data, 0, count));
+
+                    this.BeginReceive();
+                }
+                catch (Exception ex)
+                {
+                    this.Close();
+
+                    ((IDataflowBlock)this.receiveBlock).Fault(new ClientDisconnectedException(ex));
+                }
+            });
         }
 
         public void Close()
@@ -99,8 +106,6 @@ namespace Keeper.DotMudCore
 
                 this.client.Dispose();
                 this.client = null;
-                this.reader = null;
-                this.writer = null;
             }
         }
     }

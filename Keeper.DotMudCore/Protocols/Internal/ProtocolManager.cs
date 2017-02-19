@@ -14,6 +14,8 @@ namespace Keeper.DotMudCore.Protocols.Internal
         private readonly IConnection connection;
         private readonly Dictionary<Type, object> protocolSupport = new Dictionary<Type, object>();
 
+        private IDisposable activeProtocolSession;
+
         public ProtocolManager(ILogger<ProtocolManager> logger, IServiceProvider provider, IConnection connection)
         {
             this.logger = logger;
@@ -72,7 +74,14 @@ namespace Keeper.DotMudCore.Protocols.Internal
         {
             if (this.Active != protocol)
             {
+                if(this.activeProtocolSession != null)
+                {
+                    this.activeProtocolSession.Dispose();
+                }
+
                 this.Active = protocol;
+
+                this.activeProtocolSession = protocol.CreateActiveSession();
 
                 this.logger.LogInformation("Active protocol is {Protocol}.", protocol.GetType().Name);
             }

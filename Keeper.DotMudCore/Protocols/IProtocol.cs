@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Keeper.DotMudCore.Protocols
 {
@@ -9,5 +10,7 @@ namespace Keeper.DotMudCore.Protocols
         Task<string> ReceiveLineAsync();
 
         Task MakeActiveAsync();
+
+        IDisposable CreateActiveSession();
     }
 }

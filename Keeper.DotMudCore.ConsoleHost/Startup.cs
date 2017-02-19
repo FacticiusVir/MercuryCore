@@ -16,13 +16,13 @@ namespace Keeper.DotMudCore.ConsoleHost
         static Startup()
         {
             Log.Logger = new LoggerConfiguration()
-                   .Enrich.FromLogContext()
-                   .WriteTo.ColoredConsole()
-                   .WriteTo.File(new JsonFormatter(), ".\\log.txt")
+                                .Enrich.FromLogContext()
+                                .WriteTo.ColoredConsole()
+                                .WriteTo.File(new JsonFormatter(), ".\\log.txt")
 #if DEBUG
-                                                            .MinimumLevel.Verbose()
+                                .MinimumLevel.Verbose()
 #endif
-                                                            .CreateLogger();
+                                .CreateLogger();
         }
 
         public Startup()

@@ -46,7 +46,7 @@ namespace Keeper.DotMudCore
                 await session.Connection.SendAsync("\x1b[10;32HOption One");
                 await session.Connection.SendAsync("\x1b[15;32HOption Two");
                 await session.Connection.SendAsync("\x1b[20;32HOption Three");
-                await session.Connection.SendAsync("\x1b[?25h\x1b[H");
+                await session.Connection.SendAsync("\x1b[?25l\x1b[H");
                 
                 int selection = 0;
 
@@ -59,7 +59,7 @@ namespace Keeper.DotMudCore
                     for (int index = 0; index < 3; index++)
                     {
                         update += $"\x1b[{10 + 5 * index};30H";
-                        update += index == selection ? "> " : "  ";
+                        update += index == selection ? ">" : " ";
                     }
                     update += "\x1b[H";
 
@@ -90,6 +90,8 @@ namespace Keeper.DotMudCore
                         }
                     }
                 }
+
+                
             });
         }
 

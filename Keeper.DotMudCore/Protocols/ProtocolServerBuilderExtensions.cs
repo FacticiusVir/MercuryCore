@@ -4,6 +4,6 @@ namespace Keeper.DotMudCore
 {
     public static class ProtocolServerBuilderExtensions
     {
-        public static IServerBuilder UseTelnet(this IServerBuilder server) => server.UseMiddleware<TelnetMiddleware>();
+        public static IServerBuilder UseLinemodeTelnet(this IServerBuilder server) => server.UseMiddleware<LinemodeTelnetMiddleware>();
     }
 }

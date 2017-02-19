@@ -9,22 +9,22 @@ using System.Threading.Tasks.Dataflow;
 
 namespace Keeper.DotMudCore.Protocols.Internal
 {
-    internal class Telnet
-        : ITelnet
+    internal class LinemodeTelnet
+        : ILinemodeTelnet
     {
-        private readonly ILogger<Telnet> logger;
+        private readonly ILogger<LinemodeTelnet> logger;
         private readonly IConnection connection;
         private readonly IProtocolManagerControl protocolControl;
 
         private readonly IPropagatorBlock<ArraySegment<byte>, string> lineAccumulator;
 
-        public Telnet(ILogger<Telnet> logger, IProtocolManagerControl protocolControl, IConnection connection)
+        public LinemodeTelnet(ILogger<LinemodeTelnet> logger, IProtocolManagerControl protocolControl, IConnection connection)
         {
             this.logger = logger;
             this.connection = connection;
             this.protocolControl = protocolControl;
 
-            this.lineAccumulator = LineAccumulatorBlock.Create(new Dictionary<byte, Func<Func<byte, bool>>>
+            this.lineAccumulator = LineAccumulatorBlock.Create(logger, new Dictionary<byte, Func<Func<byte, bool>>>
             {
                 { (byte)0xff, this.IacHandler}
             });
@@ -32,21 +32,55 @@ namespace Keeper.DotMudCore.Protocols.Internal
 
         private Func<byte, bool> IacHandler()
         {
-            var bytes = new List<byte>();
+            List<byte> bytes = null;
 
             return datum =>
             {
+                if (bytes == null)
+                {
+                    bytes = new List<byte>();
+                }
+
                 bytes.Add(datum);
 
                 if (bytes.Count == 2)
                 {
-                    this.logger.LogDebug($"Received IAC {(TelnetCommand)bytes[0]} {(TelnetOption)bytes[1]}");
+                    TelnetOption option = (TelnetOption)bytes[1];
+
+                    this.logger.LogDebug($"Received IAC {(TelnetCommand)bytes[0]} {option}");
 
                     return true;
                 }
 
                 return false;
             };
+        }
+
+        public Task SendDoAsync(TelnetOption option)
+        {
+            return this.SendOptionAsync(TelnetCommand.DO, option);
+        }
+
+        public Task SendDontAsync(TelnetOption option)
+        {
+            return this.SendOptionAsync(TelnetCommand.DONT, option);
+        }
+
+        public Task SendWillAsync(TelnetOption option)
+        {
+            return this.SendOptionAsync(TelnetCommand.WILL, option);
+        }
+
+        public Task SendWontAsync(TelnetOption option)
+        {
+            return this.SendOptionAsync(TelnetCommand.WONT, option);
+        }
+
+        private async Task SendOptionAsync(TelnetCommand command, TelnetOption option)
+        {
+            this.logger.LogDebug($"Sending IAC {command} {option}");
+
+            await this.connection.Send.SendAsync(new ArraySegment<byte>(new byte[] { (byte)TelnetCommand.IAC, (byte)command, (byte)option }));
         }
 
         public async Task<string> ReceiveLineAsync()

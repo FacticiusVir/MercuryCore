@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Keeper.DotMudCore.Protocols;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -19,7 +20,7 @@ namespace Keeper.DotMudCore.ConsoleHost
                    .WriteTo.ColoredConsole()
                    .WriteTo.File(new JsonFormatter(), ".\\log.txt")
 #if DEBUG
-                                                            .MinimumLevel.Debug()
+                                                            .MinimumLevel.Verbose()
 #endif
                                                             .CreateLogger();
         }
@@ -46,7 +47,7 @@ namespace Keeper.DotMudCore.ConsoleHost
         {
             server.Services.GetService<ILoggerFactory>().AddSerilog();
 
-            server.UseTelnet();
+            server.UseLinemodeTelnet();
 
             server.UseMotd();
 

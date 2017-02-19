@@ -1,4 +1,5 @@
 ﻿using Keeper.DotMudCore.Dataflow;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Text;
 using System.Threading;
@@ -13,12 +14,14 @@ namespace Keeper.DotMudCore.Protocols.Internal
         private readonly IConnection connection;
         private readonly IProtocolManagerControl protocolControl;
 
-        private readonly IPropagatorBlock<ArraySegment<byte>, string> lineAccumulator = LineAccumulatorBlock.Create();
+        private readonly IPropagatorBlock<ArraySegment<byte>, string> lineAccumulator;
 
-        public PlainAscii(IProtocolManagerControl protocolControl, IConnection connection)
+        public PlainAscii(ILogger<PlainAscii> logger, IProtocolManagerControl protocolControl, IConnection connection)
         {
             this.connection = connection;
             this.protocolControl = protocolControl;
+
+            this.lineAccumulator = LineAccumulatorBlock.Create(logger);
         }
 
         public async Task<string> ReceiveLineAsync()

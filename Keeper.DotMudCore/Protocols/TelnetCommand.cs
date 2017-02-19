@@ -20,4 +20,41 @@
         DONT = 254,
         IAC = 255
     }
+
+    public static class TelnetCommandExtensions
+    {
+        public static TelnetCommand Reciprocal(this TelnetCommand command)
+        {
+            switch(command)
+            {
+                case TelnetCommand.WILL:
+                    return TelnetCommand.DO;
+                case TelnetCommand.WONT:
+                    return TelnetCommand.DONT;
+                case TelnetCommand.DO:
+                    return TelnetCommand.WILL;
+                case TelnetCommand.DONT:
+                    return TelnetCommand.WONT;
+                default:
+                    return command;
+            }
+        }
+
+        public static TelnetCommand Negate(this TelnetCommand command)
+        {
+            switch (command)
+            {
+                case TelnetCommand.WILL:
+                    return TelnetCommand.WONT;
+                case TelnetCommand.WONT:
+                    return TelnetCommand.WILL;
+                case TelnetCommand.DO:
+                    return TelnetCommand.DONT;
+                case TelnetCommand.DONT:
+                    return TelnetCommand.DO;
+                default:
+                    return command;
+            }
+        }
+    }
 }

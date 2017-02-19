@@ -19,6 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Keeper.DotMudCore.Identity\Keeper.DotMudCore.Identity.csproj" />
+    <ProjectReference Include="..\Keeper.DotMudCore.Tcp\Keeper.DotMudCore.Tcp.csproj" />
     <ProjectReference Include="..\Keeper.DotMudCore\Keeper.DotMudCore.csproj" />
   </ItemGroup>
 

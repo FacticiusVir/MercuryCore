@@ -1,4 +1,4 @@
-﻿namespace Keeper.DotMudCore
+﻿namespace Keeper.DotMudCore.Tcp
 {
     public class TcpOptions
     {

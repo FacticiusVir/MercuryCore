@@ -57,15 +57,22 @@ namespace Keeper.DotMudCore.ConsoleHost
             {
                 var identity = session.GetIdentityInfo();
 
-                var telnet = session.Protocol.Get<ILinemodeTelnet>();
+                if (session.IsLinemodeTelnetSupported())
+                {
+                    var telnet = session.GetLinemodeTelnet();
 
-                await telnet.SendAsync($"Hello, ");
+                    await telnet.SendAsync("Hello, ");
 
-                await telnet.SendAsync(AnsiColour.Cyan, identity.Username);
+                    await telnet.SendAsync(AnsiColour.Cyan, identity.Username);
 
-                await telnet.SendLineAsync();
+                    await telnet.SendLineAsync();
+                }
+                else
+                {
+                    await session.SendLineAsync($"Hello, {identity.Username}");
+                }
 
-                await telnet.ReceiveLineAsync();
+                await session.ReceiveLineAsync();
             });
 
             server.Services.GetService<Identity.IUserManager>().CreateUserAsync("TestUser", "test").Wait();

@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
-namespace Keeper.DotMudCore
+namespace Keeper.DotMudCore.Tcp
 {
     public class TcpConnection
         : IConnection

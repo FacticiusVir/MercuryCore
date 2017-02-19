@@ -6,7 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace Keeper.DotMudCore
+namespace Keeper.DotMudCore.Tcp
 {
     public class TcpEndpoint
         : IEndpoint

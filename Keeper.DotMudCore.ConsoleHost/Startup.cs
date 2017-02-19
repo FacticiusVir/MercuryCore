@@ -16,12 +16,7 @@ namespace Keeper.DotMudCore.ConsoleHost
         static Startup()
         {
             Log.Logger = new LoggerConfiguration()
-                                .Enrich.FromLogContext()
-                                .WriteTo.ColoredConsole()
-                                .WriteTo.File(new JsonFormatter(), ".\\log.txt")
-#if DEBUG
-                                .MinimumLevel.Verbose()
-#endif
+
                                 .CreateLogger();
         }
 
@@ -45,7 +40,14 @@ namespace Keeper.DotMudCore.ConsoleHost
 
         public override void Configure(IServerBuilder server)
         {
-            server.Services.GetService<ILoggerFactory>().AddSerilog();
+            server.UseSerilog(config => config
+                                            .Enrich.FromLogContext()
+                                            .WriteTo.ColoredConsole()
+                                            .WriteTo.File(new JsonFormatter(), ".\\log.txt")
+#if DEBUG
+                                            .MinimumLevel.Verbose()
+#endif
+                                            );
 
             server.UseLinemodeTelnet();
 

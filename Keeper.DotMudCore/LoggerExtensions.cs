@@ -8,10 +8,18 @@ namespace Microsoft.Extensions.Logging
         /// <summary>
         /// Begins a property scope.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="logger"></param>
-        /// <param name="propertyName"></param>
-        /// <param name="value"></param>
+        /// <typeparam name="T">
+        /// The type of the property's value.
+        /// </typeparam>
+        /// <param name="logger">
+        /// The value to which to apply the property.
+        /// </param>
+        /// <param name="propertyName">
+        /// The name of the property.
+        /// </param>
+        /// <param name="value">
+        /// The value of the property.
+        /// </param>
         /// <returns>
         /// An IDisposable that ends the property scope on dispose.
         /// </returns>

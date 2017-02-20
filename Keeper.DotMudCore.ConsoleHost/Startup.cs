@@ -53,7 +53,7 @@ namespace Keeper.DotMudCore.ConsoleHost
 
             server.UseMotd();
 
-            server.UseLogin();
+            server.UseIdentity();
 
             server.Run(async session =>
             {

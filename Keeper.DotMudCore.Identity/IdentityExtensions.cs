@@ -2,23 +2,23 @@
 
 namespace Keeper.DotMudCore
 {
-    public static class LoginServerBuilderExtensions
+    public static class IdentityServerBuilderExtensions
     {
-        public static IServerBuilder UseLogin(this IServerBuilder builder)
+        public static IServerBuilder UseIdentity(this IServerBuilder builder)
         {
-            return builder.UseMiddleware<LoginMiddleware>();
+            return builder.UseMiddleware<IdentityMiddleware>();
         }
     }
 }
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class LoginServiceCollectionExtensions
+    public static class IdentityServiceCollectionExtensions
     {
         public static IServiceCollection AddSimpleLogin(this IServiceCollection services)
         {
             return services.AddSingleton<IUserManager, InMemoryUserManager>()
-                            .AddSingleton<ILoginManager, SimpleLoginManager>();
+                            .AddSingleton<IIdentityManager, SimpleLoginManager>();
         }
     }
 }

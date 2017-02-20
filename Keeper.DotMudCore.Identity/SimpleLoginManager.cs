@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace Keeper.DotMudCore.Identity
 {
     public class SimpleLoginManager
-        : ILoginManager
+        : IIdentityManager
     {
         private readonly ILogger<SimpleLoginManager> logger;
         private readonly IUserManager userManager;
@@ -15,7 +15,7 @@ namespace Keeper.DotMudCore.Identity
             this.userManager = userManager;
         }
 
-        public async Task<LoginResult> Login(ISession session)
+        public async Task<AuthenticateResult> Authenticate(ISession session)
         {
             this.logger.LogDebug("Logging in");
 
@@ -56,7 +56,7 @@ namespace Keeper.DotMudCore.Identity
                         {
                             this.logger.LogInformation("{Username} logged in successfully", username);
 
-                            return LoginResult.Success(username);
+                            return AuthenticateResult.Success(username);
                         }
                         else
                         {
@@ -119,7 +119,7 @@ namespace Keeper.DotMudCore.Identity
                 }
             }
 
-            return LoginResult.Success(username);
+            return AuthenticateResult.Success(username);
         }
     }
 }

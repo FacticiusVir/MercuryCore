@@ -1,19 +1,19 @@
 ﻿namespace Keeper.DotMudCore.Identity
 {
-    public struct LoginResult
+    public struct AuthenticateResult
     {
-        public static LoginResult Failed => new LoginResult { Type = LoginResultType.Failed };
+        public static AuthenticateResult Failed => new AuthenticateResult { Type = AuthenticateResultType.Failed };
 
-        public static LoginResult Success(string username, bool isNewRegistration = false)
-            => new LoginResult
+        public static AuthenticateResult Success(string username, bool isNewRegistration = false)
+            => new AuthenticateResult
                 {
                     Type = isNewRegistration
-                                ? LoginResultType.Registered
-                                : LoginResultType.Authenticated,
+                                ? AuthenticateResultType.Registered
+                                : AuthenticateResultType.Authenticated,
                     Username = username
                 };
 
-        public LoginResultType Type
+        public AuthenticateResultType Type
         {
             get;
             private set;
@@ -25,10 +25,10 @@
             private set;
         }
 
-        public bool IsSuccess => this.Type == LoginResultType.Authenticated || this.Type == LoginResultType.Registered;
+        public bool IsSuccess => this.Type == AuthenticateResultType.Authenticated || this.Type == AuthenticateResultType.Registered;
     }
 
-    public enum LoginResultType
+    public enum AuthenticateResultType
     {
         Failed,
         Cancelled,

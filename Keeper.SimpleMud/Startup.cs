@@ -28,7 +28,9 @@ namespace Keeper.SimpleMud
         {
             services.AddTcpEndpoint(this.Configuration.GetSection("tcp").Bind);
 
-            services.AddMotd(options => options.Message = "Welcome to SimpleMUD!\n");
+            services.AddMotd(options => options.Message = "Welcome to SimpleMUD!");
+
+            services.AddCommandLoop(loopServices => loopServices.AddVerbObjectParser());
         }
 
         public void Configure(IServerBuilder server)
@@ -42,12 +44,11 @@ namespace Keeper.SimpleMud
 #endif
                                         );
 
+            server.UseLinemodeTelnet();
+
             server.UseMotd();
 
-            server.Run(async session =>
-            {
-                await session.ReceiveLineAsync();
-            });
+            server.UseCommandLoop();
         }
     }
 }

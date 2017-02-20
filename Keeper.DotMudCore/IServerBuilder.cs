@@ -15,7 +15,7 @@ namespace Keeper.DotMudCore
     public static class ServerBuilderExtensions
     {
         public static IServerBuilder UseMiddleware<T>(this IServerBuilder server)
-            where T:IMiddleware
+            where T : IMiddleware
         {
             return server.Use(next => ActivatorUtilities.CreateInstance<T>(server.Services, next).Invoke);
         }

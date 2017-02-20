@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keeper.SimpleMud", "Keeper.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keeper.DotMudCore.Serilog", "Keeper.DotMudCore.Serilog\Keeper.DotMudCore.Serilog.csproj", "{EA5E8641-275F-4A6A-954E-A2FB7067BC0B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keeper.DotMudCore.CommandLoop", "Keeper.DotMudCore.CommandLoop\Keeper.DotMudCore.CommandLoop.csproj", "{1E4D57D9-73FE-485A-A217-FF03C9E21F67}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,18 @@ Global
 		{EA5E8641-275F-4A6A-954E-A2FB7067BC0B}.Release|x64.Build.0 = Release|x64
 		{EA5E8641-275F-4A6A-954E-A2FB7067BC0B}.Release|x86.ActiveCfg = Release|x86
 		{EA5E8641-275F-4A6A-954E-A2FB7067BC0B}.Release|x86.Build.0 = Release|x86
+		{1E4D57D9-73FE-485A-A217-FF03C9E21F67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E4D57D9-73FE-485A-A217-FF03C9E21F67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E4D57D9-73FE-485A-A217-FF03C9E21F67}.Debug|x64.ActiveCfg = Debug|x64
+		{1E4D57D9-73FE-485A-A217-FF03C9E21F67}.Debug|x64.Build.0 = Debug|x64
+		{1E4D57D9-73FE-485A-A217-FF03C9E21F67}.Debug|x86.ActiveCfg = Debug|x86
+		{1E4D57D9-73FE-485A-A217-FF03C9E21F67}.Debug|x86.Build.0 = Debug|x86
+		{1E4D57D9-73FE-485A-A217-FF03C9E21F67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E4D57D9-73FE-485A-A217-FF03C9E21F67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E4D57D9-73FE-485A-A217-FF03C9E21F67}.Release|x64.ActiveCfg = Release|x64
+		{1E4D57D9-73FE-485A-A217-FF03C9E21F67}.Release|x64.Build.0 = Release|x64
+		{1E4D57D9-73FE-485A-A217-FF03C9E21F67}.Release|x86.ActiveCfg = Release|x86
+		{1E4D57D9-73FE-485A-A217-FF03C9E21F67}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

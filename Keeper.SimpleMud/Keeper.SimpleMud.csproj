@@ -16,8 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Keeper.DotMudCore.CommandLoop\Keeper.DotMudCore.CommandLoop.csproj" />
-    <ProjectReference Include="..\Keeper.DotMudCore.Identity\Keeper.DotMudCore.Identity.csproj" />
     <ProjectReference Include="..\Keeper.DotMudCore.Serilog\Keeper.DotMudCore.Serilog.csproj" />
     <ProjectReference Include="..\Keeper.DotMudCore.Tcp\Keeper.DotMudCore.Tcp.csproj" />
     <ProjectReference Include="..\Keeper.DotMudCore\Keeper.DotMudCore.csproj" />

@@ -58,7 +58,7 @@ namespace Keeper.DotMudCore.Tcp
 
         public IReceivableSourceBlock<ArraySegment<byte>> Receive => this.receiveBlock;
 
-        public async Task SendAsync(ArraySegment<byte> data)
+        private async Task SendAsync(ArraySegment<byte> data)
         {
             try
             {
@@ -71,7 +71,7 @@ namespace Keeper.DotMudCore.Tcp
             }
         }
 
-        public void BeginReceive()
+        private void BeginReceive()
         {
             Task.Run(async () =>
             {

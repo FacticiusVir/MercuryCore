@@ -6,7 +6,10 @@ namespace Keeper.MercuryCore.TestHarness
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var host = new HostBuilder()
+                            .Build();
+
+            host.Run();
         }
     }
 }

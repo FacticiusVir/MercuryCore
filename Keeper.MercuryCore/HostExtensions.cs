@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using System.Threading;
 
 namespace Keeper.MercuryCore
 {
@@ -6,7 +7,18 @@ namespace Keeper.MercuryCore
     {
         public static void Run(this IHost host)
         {
-            IServiceCollection test;
+            using (var tokenSource = new CancellationTokenSource())
+            {
+                Console.CancelKeyPress += (x, y) => tokenSource.Cancel();
+                
+                var hostTask = host.RunAsync(tokenSource.Token);
+
+                Console.ReadLine();
+
+                tokenSource.Cancel();
+
+                hostTask.Wait();
+            }
         }
     }
 }

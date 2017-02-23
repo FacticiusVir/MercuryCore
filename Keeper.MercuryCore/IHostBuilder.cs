@@ -8,5 +8,7 @@ namespace Keeper.MercuryCore
         IHostBuilder ConfigureServices(Action<IServiceCollection> servicesAction);
 
         IHostBuilder ConfigurePipeline(Action<IServiceCollection<IPipeline>> pipelineAction);
+
+        IHost Build();
     }
 }

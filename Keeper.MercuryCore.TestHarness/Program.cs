@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Serilog;
 
 namespace Keeper.MercuryCore.TestHarness
 {
@@ -7,6 +7,8 @@ namespace Keeper.MercuryCore.TestHarness
         static void Main(string[] args)
         {
             var host = new HostBuilder()
+                            .ConfigureSerilog(config => config.WriteTo.LiterateConsole())
+                            .ConfigurePipeline(pipeline => { })
                             .Build();
 
             host.Run();

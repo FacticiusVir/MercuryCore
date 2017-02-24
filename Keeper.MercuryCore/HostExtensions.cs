@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Keeper.MercuryCore
 {
@@ -13,9 +14,14 @@ namespace Keeper.MercuryCore
                 
                 var hostTask = host.RunAsync(tokenSource.Token);
 
-                Console.ReadLine();
+                var consoleTask = Task.Run(() =>
+                {
+                    Console.ReadLine();
 
-                tokenSource.Cancel();
+                    tokenSource.Cancel();
+                });
+
+                Task.WaitAny(hostTask, consoleTask);
 
                 hostTask.Wait();
             }

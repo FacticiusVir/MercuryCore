@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Keeper.MercuryCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
-using Keeper.MercuryCore.Internal;
 
 namespace Keeper.MercuryCore
 {
@@ -10,19 +10,26 @@ namespace Keeper.MercuryCore
     {
         private List<Action<IServiceCollection>> serviceConfigurations = new List<Action<IServiceCollection>>();
 
-        public IHostBuilder ConfigurePipeline(Action<IServiceCollection<IPipeline>> pipelineAction)
-        {
-            throw new NotImplementedException();
-        }
-
         public IHostBuilder ConfigureServices(Action<IServiceCollection> servicesAction)
         {
-            throw new NotImplementedException();
+            this.serviceConfigurations.Add(servicesAction);
+
+            return this;
         }
 
         public IHost Build()
         {
-            return new Host();
+            var hostServices = new ServiceCollection();
+
+            foreach (var serviceAction in this.serviceConfigurations)
+            {
+                serviceAction(hostServices);
+            }
+
+            hostServices.AddLogging();
+            hostServices.AddOptions();
+
+            return new Host(hostServices);
         }
     }
 }

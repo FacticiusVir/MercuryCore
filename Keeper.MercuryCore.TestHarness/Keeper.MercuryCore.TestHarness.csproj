@@ -6,6 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Serilog.Sinks.Literate" Version="2.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Keeper.MercuryCore.Serilog\Keeper.MercuryCore.Serilog.csproj" />
     <ProjectReference Include="..\Keeper.MercuryCore\Keeper.MercuryCore.csproj" />
   </ItemGroup>
 

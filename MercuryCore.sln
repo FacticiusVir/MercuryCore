@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keeper.MercuryCore", "Keepe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keeper.MercuryCore.TestHarness", "Keeper.MercuryCore.TestHarness\Keeper.MercuryCore.TestHarness.csproj", "{DB7796A5-25A8-422A-A828-F4554744C196}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keeper.MercuryCore.Serilog", "Keeper.MercuryCore.Serilog\Keeper.MercuryCore.Serilog.csproj", "{1F5EFF09-44BA-4958-BD03-3EC4137AA42A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{DB7796A5-25A8-422A-A828-F4554744C196}.Release|x64.Build.0 = Release|x64
 		{DB7796A5-25A8-422A-A828-F4554744C196}.Release|x86.ActiveCfg = Release|x86
 		{DB7796A5-25A8-422A-A828-F4554744C196}.Release|x86.Build.0 = Release|x86
+		{1F5EFF09-44BA-4958-BD03-3EC4137AA42A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F5EFF09-44BA-4958-BD03-3EC4137AA42A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F5EFF09-44BA-4958-BD03-3EC4137AA42A}.Debug|x64.ActiveCfg = Debug|x64
+		{1F5EFF09-44BA-4958-BD03-3EC4137AA42A}.Debug|x64.Build.0 = Debug|x64
+		{1F5EFF09-44BA-4958-BD03-3EC4137AA42A}.Debug|x86.ActiveCfg = Debug|x86
+		{1F5EFF09-44BA-4958-BD03-3EC4137AA42A}.Debug|x86.Build.0 = Debug|x86
+		{1F5EFF09-44BA-4958-BD03-3EC4137AA42A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F5EFF09-44BA-4958-BD03-3EC4137AA42A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F5EFF09-44BA-4958-BD03-3EC4137AA42A}.Release|x64.ActiveCfg = Release|x64
+		{1F5EFF09-44BA-4958-BD03-3EC4137AA42A}.Release|x64.Build.0 = Release|x64
+		{1F5EFF09-44BA-4958-BD03-3EC4137AA42A}.Release|x86.ActiveCfg = Release|x86
+		{1F5EFF09-44BA-4958-BD03-3EC4137AA42A}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

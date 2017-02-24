@@ -1,27 +1,42 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Keeper.MercuryCore.Internal
 {
-    internal class ChildServiceCollection
-        : List<ServiceDescriptor>, IServiceCollection, IDisposable
+    internal class ChildServiceCollection<T>
+        : List<ServiceDescriptor>, IServiceCollection<T>, IDisposable
     {
         private IServiceScope parentScope;
 
-        public ChildServiceCollection(IServiceCollection parent, IServiceProvider parentProvider)
+        public ChildServiceCollection(IEnumerable<ServiceDescriptor> parent, IServiceProvider parentProvider)
         {
             this.parentScope = parentProvider.CreateScope();
 
             foreach (var service in parent)
             {
-                if (service.Lifetime == ServiceLifetime.Transient)
+                if (service.ServiceType.GetTypeInfo().IsGenericType)
                 {
-                    this.AddTransient(service.ServiceType, x => this.parentScope.ServiceProvider.GetService(service.ServiceType));
+                    if (service.Lifetime == ServiceLifetime.Transient)
+                    {
+                        this.AddTransient(service.ServiceType, service.ImplementationType);
+                    }
+                    else
+                    {
+                        this.AddSingleton(service.ServiceType, service.ImplementationType);
+                    }
                 }
                 else
                 {
-                    this.AddSingleton(service.ServiceType, x => this.parentScope.ServiceProvider.GetService(service.ServiceType));
+                    if (service.Lifetime == ServiceLifetime.Transient)
+                    {
+                        this.AddTransient(service.ServiceType, x => this.parentScope.ServiceProvider.GetService(service.ServiceType));
+                    }
+                    else
+                    {
+                        this.AddSingleton(service.ServiceType, x => this.parentScope.ServiceProvider.GetService(service.ServiceType));
+                    }
                 }
             }
         }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Keeper.MercuryCore.Internal
+namespace Keeper.MercuryCore.Pipeline.Internal
 {
     internal interface IPipelineFactory
     {

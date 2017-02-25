@@ -1,4 +1,4 @@
-﻿namespace Keeper.MercuryCore
+﻿namespace Keeper.MercuryCore.Pipeline
 {
     public interface IPipeline
     {

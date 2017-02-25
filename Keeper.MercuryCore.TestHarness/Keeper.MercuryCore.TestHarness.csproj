@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Keeper.MercuryCore.Serilog\Keeper.MercuryCore.Serilog.csproj" />
+    <ProjectReference Include="..\Keeper.MercuryCore.Tcp\Keeper.MercuryCore.Tcp.csproj" />
     <ProjectReference Include="..\Keeper.MercuryCore\Keeper.MercuryCore.csproj" />
   </ItemGroup>
 

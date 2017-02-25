@@ -8,7 +8,10 @@ namespace Keeper.MercuryCore.TestHarness
         {
             var host = new HostBuilder()
                             .ConfigureSerilog(config => config.WriteTo.LiterateConsole())
-                            .ConfigurePipeline(pipeline => { })
+                            .ConfigurePipeline(pipeline =>
+                            {
+                                pipeline.AddTcpEndpoint(options => options.Port = 5000);
+                            })
                             .Build();
 
             host.Run();

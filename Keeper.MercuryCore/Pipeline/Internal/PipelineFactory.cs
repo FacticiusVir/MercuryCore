@@ -1,7 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Keeper.MercuryCore.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace Keeper.MercuryCore.Internal
+namespace Keeper.MercuryCore.Pipeline.Internal
 {
     public class PipelineFactory
         : IPipelineFactory

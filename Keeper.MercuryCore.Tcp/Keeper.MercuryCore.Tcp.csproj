@@ -5,11 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetty.Handlers" Version="0.4.2" />
-    <PackageReference Include="DotNetty.Transport" Version="0.4.2" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Keeper.MercuryCore\Keeper.MercuryCore.csproj" />
   </ItemGroup>
 

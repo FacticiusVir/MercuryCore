@@ -1,10 +1,11 @@
-﻿using DotNetty.Transport.Bootstrapping;
-using DotNetty.Transport.Channels;
-using Keeper.MercuryCore.Pipeline;
+﻿using Keeper.MercuryCore.Pipeline;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Net;
 using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace Keeper.MercuryCore.Tcp
 {
@@ -12,24 +13,59 @@ namespace Keeper.MercuryCore.Tcp
         : IEndpoint
     {
         private readonly ILogger<TcpEndpoint> logger;
-        private readonly int port;
+        private readonly TcpListener listener;
+        private readonly List<IConnection> connections = new List<IConnection>();
 
-        public TcpEndpoint(ILogger<TcpEndpoint> logger, IOptions<TcpOptions> options)
+        public TcpEndpoint(IOptions<TcpOptions> options, ILogger<TcpEndpoint> logger)
         {
             this.logger = logger;
-            this.port = options.Value.Port;
+            this.listener = new TcpListener(IPAddress.Any, options.Value.Port);
 
-            this.logger.LogInformation("TCP Endpoint configured on port {Port}", this.port);
+            this.logger.LogInformation("TCP Endpoint configured on port {Port}", options.Value.Port);
         }
+
+        public event Action<IConnection> NewConnection;
 
         public void Start()
         {
-            this.logger.LogInformation("TCP Endpoint started.");
+            this.listener.Start();
+
+            this.BeginAccept();
         }
 
         public void Stop()
         {
-            this.logger.LogInformation("TCP Endpoint stopped.");
+            this.listener.Stop();
+
+            foreach (var session in this.connections)
+            {
+                session.Close();
+            }
+
+            this.connections.Clear();
+        }
+
+        private void BeginAccept()
+        {
+            Task.Run(async () =>
+            {
+                try
+                {
+                    var client = await this.listener.AcceptTcpClientAsync();
+
+                    this.BeginAccept();
+
+                    var newConnection = new TcpConnection(client);
+
+                    this.connections.Add(newConnection);
+
+                    this.NewConnection?.Invoke(newConnection);
+                }
+                catch(Exception ex)
+                {
+                    this.logger.LogError("Exception thrown from TCP Endpoint listener {Exception}", ex);
+                }
+            });
         }
     }
 }

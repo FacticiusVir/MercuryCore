@@ -1,8 +1,11 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Keeper.MercuryCore.Channel;
+using Keeper.MercuryCore.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
 namespace Keeper.MercuryCore.Pipeline.Internal
@@ -11,17 +14,22 @@ namespace Keeper.MercuryCore.Pipeline.Internal
         : IPipeline
     {
         private readonly ILogger<Pipeline> logger;
+        private readonly IServiceCollection services;
         private readonly IServiceProvider serviceProvider;
         private readonly int pipelineId;
         private readonly IEnumerable<IEndpoint> endpoints;
+        private readonly IEnumerable<IMiddleware> middlewares;
 
         public Pipeline(ILogger<Pipeline> logger, IServiceCollection pipelineServices, int pipelineId)
         {
             this.logger = logger;
+            this.services = pipelineServices;
             this.serviceProvider = pipelineServices.BuildServiceProvider();
             this.pipelineId = pipelineId;
 
             this.endpoints = this.serviceProvider.GetServices<IEndpoint>();
+
+            this.middlewares = this.serviceProvider.GetServices<IMiddleware>();
 
             foreach (var endpoint in this.endpoints)
             {
@@ -29,33 +37,44 @@ namespace Keeper.MercuryCore.Pipeline.Internal
             }
         }
 
-        private async void OnNewConnection(IConnection connection)
+        private async Task OnNewConnection(IConnection connection)
         {
             using (logger.BeginPropertyScope("Connection", connection.UniqueIdentifier))
             {
-                logger.LogInformation("New Connection: {Connection}");
+                logger.LogInformation("New connection: {Connection}");
 
-                var sendData = Encoding.ASCII.GetBytes("Test\r\n");
+                var sessionServices = new ChildServiceCollection<ISession>(this.services, this.serviceProvider);
 
-                await connection.Send.SendAsync(new ArraySegment<byte>(sendData));
+                var channel = new Lazy<AsciiChannel>();
 
-                bool isRunning = true;
+                sessionServices.AddSingleton<IChannel>(provider => channel.Value);
+                sessionServices.AddSingleton<ITextChannel>(provider => channel.Value);
 
-                while (isRunning)
+                var sessionServiceProvider = sessionServices.BuildServiceProvider();
+
+                sessionServiceProvider.GetService<IChannel>().Bind(connection);
+
+                Func<Task> pipeline = () => Task.CompletedTask;
+
+                foreach (var middleware in this.middlewares.Reverse())
                 {
-                    var data = await connection.Receive.ReceiveAsync();
+                    pipeline = middleware.BuildHandler(sessionServiceProvider, pipeline);
+                }
 
-                    Console.WriteLine(data.Count);
+                var nullBlock = new ActionBlock<ArraySegment<byte>>(data => { });
 
-                    if (data.Count == 2)
-                    {
-                        isRunning = false;
-                    }
+                using (connection.Receive.LinkTo(nullBlock))
+                {
+                    await pipeline();
+
+                    await Task.Delay(2500);
                 }
 
                 connection.Close();
 
                 await connection.Closed;
+
+                logger.LogInformation("Connection closed: {Connection}");
             }
         }
 

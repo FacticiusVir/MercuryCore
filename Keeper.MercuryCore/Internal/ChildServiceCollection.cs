@@ -24,7 +24,14 @@ namespace Keeper.MercuryCore.Internal
                     }
                     else
                     {
-                        this.AddSingleton(service.ServiceType, service.ImplementationType);
+                        if (service.ImplementationInstance != null)
+                        {
+                            this.AddSingleton(service.ServiceType, service.ImplementationInstance);
+                        }
+                        else
+                        {
+                            this.AddSingleton(service.ServiceType, service.ImplementationType);
+                        }
                     }
                 }
                 else

@@ -1,4 +1,4 @@
-﻿using Keeper.MercuryCore.Channels;
+﻿using Keeper.MercuryCore.Channel;
 using Keeper.MercuryCore.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -23,7 +23,7 @@ namespace Keeper.MercuryCore.Middleware
             
             return async () =>
             {
-                await channel.SendAsync(options.Message);
+                await channel.SendLineAsync(options.Message);
 
                 await next();
             };

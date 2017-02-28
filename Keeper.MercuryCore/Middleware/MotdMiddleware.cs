@@ -1,4 +1,4 @@
-﻿using Keeper.MercuryCore.Channel;
+﻿using Keeper.MercuryCore.Session;
 using Keeper.MercuryCore.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;

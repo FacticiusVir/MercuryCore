@@ -1,9 +1,9 @@
-﻿using Keeper.MercuryCore.Middleware;
+﻿using Keeper.MercuryCore;
+using Keeper.MercuryCore.Middleware;
 using Keeper.MercuryCore.Pipeline;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace Keeper.MercuryCore
+namespace Microsoft.Extensions.DependencyInjection
 {
     public static class MiddlewareServiceCollectionExtensions
     {
@@ -11,7 +11,7 @@ namespace Keeper.MercuryCore
         {
             services.Configure(optionsAction);
 
-            services.AddSingleton<IMiddleware, MotdMiddleware>();
+            services.Use<MotdMiddleware>();
 
             return services;
         }

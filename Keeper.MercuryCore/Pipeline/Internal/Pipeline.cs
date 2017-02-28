@@ -1,12 +1,11 @@
-﻿using Keeper.MercuryCore.Channel;
-using Keeper.MercuryCore.Internal;
+﻿using Keeper.MercuryCore.Internal;
+using Keeper.MercuryCore.Session;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 
 namespace Keeper.MercuryCore.Pipeline.Internal
 {
@@ -40,41 +39,47 @@ namespace Keeper.MercuryCore.Pipeline.Internal
         private async Task OnNewConnection(IConnection connection)
         {
             using (logger.BeginPropertyScope("Connection", connection.UniqueIdentifier))
+            using (logger.BeginPropertyScope("PipelineId", this.pipelineId))
             {
-                logger.LogInformation("New connection: {Connection}");
+                logger.LogInformation("New connection: {Connection} on pipeline {PipelineId}");
 
-                var sessionServices = new ChildServiceCollection<ISession>(this.services, this.serviceProvider);
-
-                var channel = new Lazy<AsciiChannel>();
-
-                sessionServices.AddSingleton<IChannel>(provider => channel.Value);
-                sessionServices.AddSingleton<ITextChannel>(provider => channel.Value);
-
-                var sessionServiceProvider = sessionServices.BuildServiceProvider();
-
-                sessionServiceProvider.GetService<IChannel>().Bind(connection);
-
-                Func<Task> pipeline = () => Task.CompletedTask;
-
-                foreach (var middleware in this.middlewares.Reverse())
+                try
                 {
-                    pipeline = middleware.BuildHandler(sessionServiceProvider, pipeline);
-                }
+                    var sessionServices = new ChildServiceCollection<ISession>(this.services, this.serviceProvider);
 
-                var nullBlock = new ActionBlock<ArraySegment<byte>>(data => { });
+                    var sessionServiceProvider = sessionServices.BuildServiceProvider();
 
-                using (connection.Receive.LinkTo(nullBlock))
-                {
+                    var channel = sessionServiceProvider.GetService<IChannel>();
+
+                    if (channel == null)
+                    {
+                        this.logger.LogError("No channel configured for pipeline {PipelineId}.");
+                        return;
+                    }
+
+                    channel.Bind(connection);
+
+                    Func<Task> pipeline = () => Task.CompletedTask;
+
+                    foreach (var middleware in this.middlewares.Reverse())
+                    {
+                        pipeline = middleware.BuildHandler(sessionServiceProvider, pipeline);
+                    }
+
                     await pipeline();
-
-                    await Task.Delay(2500);
                 }
+                catch (ClientDisconnectedException)
+                {
+                    this.logger.LogWarning("Client disconnected unexpectedly: {Connection}");
+                }
+                finally
+                {
+                    connection.Close();
 
-                connection.Close();
+                    await connection.Closed;
 
-                await connection.Closed;
-
-                logger.LogInformation("Connection closed: {Connection}");
+                    logger.LogInformation("Connection closed: {Connection}");
+                }
             }
         }
 

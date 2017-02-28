@@ -1,4 +1,4 @@
-﻿namespace Keeper.MercuryCore.Channel
+﻿namespace Keeper.MercuryCore.Session
 {
     public interface ISession
     {

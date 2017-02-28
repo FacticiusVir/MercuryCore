@@ -1,10 +1,10 @@
-﻿using Keeper.MercuryCore.Internal;
+﻿using Keeper.MercuryCore;
+using Keeper.MercuryCore.Internal;
 using Keeper.MercuryCore.Pipeline;
 using Keeper.MercuryCore.Pipeline.Internal;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace Keeper.MercuryCore
+namespace Microsoft.Extensions.DependencyInjection
 {
     public static class HostBuilderExtensions
     {

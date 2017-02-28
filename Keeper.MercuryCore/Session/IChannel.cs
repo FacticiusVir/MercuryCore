@@ -1,7 +1,7 @@
 ﻿using Keeper.MercuryCore.Pipeline;
 using System;
 
-namespace Keeper.MercuryCore.Channel
+namespace Keeper.MercuryCore.Session
 {
     public interface IChannel
     {

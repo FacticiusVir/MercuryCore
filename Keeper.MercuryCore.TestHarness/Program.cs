@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 
 namespace Keeper.MercuryCore.TestHarness
 {
@@ -14,7 +15,21 @@ namespace Keeper.MercuryCore.TestHarness
                             {
                                 pipeline.AddTcpEndpoint(options => options.Port = 5000);
 
+                                pipeline.UseAsciiChannel();
+
                                 pipeline.UseMotd(options => options.Message = "Welcome to the Test Server!");
+
+                                pipeline.Use((provider, next) =>
+                                {
+                                    var channel = provider.GetRequiredService<Session.ITextChannel>();
+
+                                    return async () =>
+                                    {
+                                        await channel.ReceiveLineAsync();
+
+                                        await next();
+                                    };
+                                });
                             })
                             .Build();
 

@@ -1,9 +1,9 @@
-﻿using Keeper.MercuryCore.Pipeline;
+﻿using Keeper.MercuryCore;
+using Keeper.MercuryCore.Pipeline;
 using Keeper.MercuryCore.Tcp;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace Keeper.MercuryCore
+namespace Microsoft.Extensions.DependencyInjection
 {
     public static class TcpPipelineExtensions
     {

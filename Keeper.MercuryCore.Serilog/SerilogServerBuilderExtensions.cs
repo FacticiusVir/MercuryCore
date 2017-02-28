@@ -1,10 +1,9 @@
 ﻿using Keeper.MercuryCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
 
-namespace Keeper.MercuryCore
+namespace Microsoft.Extensions.DependencyInjection
 {
     public static class SerilogServerBuilderExtensions
     {

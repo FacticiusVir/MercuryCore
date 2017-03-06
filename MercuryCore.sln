@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keeper.MercuryCore.Serilog"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keeper.MercuryCore.Tcp", "Keeper.MercuryCore.Tcp\Keeper.MercuryCore.Tcp.csproj", "{FC230874-57CD-493F-B577-130D7D4CB430}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keeper.MercuryCore.Identity", "Keeper.MercuryCore.Identity\Keeper.MercuryCore.Identity.csproj", "{81ECBD3E-97D8-41B4-8775-F0B67756CF8F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,18 @@ Global
 		{FC230874-57CD-493F-B577-130D7D4CB430}.Release|x64.Build.0 = Release|x64
 		{FC230874-57CD-493F-B577-130D7D4CB430}.Release|x86.ActiveCfg = Release|x86
 		{FC230874-57CD-493F-B577-130D7D4CB430}.Release|x86.Build.0 = Release|x86
+		{81ECBD3E-97D8-41B4-8775-F0B67756CF8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81ECBD3E-97D8-41B4-8775-F0B67756CF8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81ECBD3E-97D8-41B4-8775-F0B67756CF8F}.Debug|x64.ActiveCfg = Debug|x64
+		{81ECBD3E-97D8-41B4-8775-F0B67756CF8F}.Debug|x64.Build.0 = Debug|x64
+		{81ECBD3E-97D8-41B4-8775-F0B67756CF8F}.Debug|x86.ActiveCfg = Debug|x86
+		{81ECBD3E-97D8-41B4-8775-F0B67756CF8F}.Debug|x86.Build.0 = Debug|x86
+		{81ECBD3E-97D8-41B4-8775-F0B67756CF8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81ECBD3E-97D8-41B4-8775-F0B67756CF8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81ECBD3E-97D8-41B4-8775-F0B67756CF8F}.Release|x64.ActiveCfg = Release|x64
+		{81ECBD3E-97D8-41B4-8775-F0B67756CF8F}.Release|x64.Build.0 = Release|x64
+		{81ECBD3E-97D8-41B4-8775-F0B67756CF8F}.Release|x86.ActiveCfg = Release|x86
+		{81ECBD3E-97D8-41B4-8775-F0B67756CF8F}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

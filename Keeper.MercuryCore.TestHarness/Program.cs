@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Keeper.MercuryCore.Session;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
 namespace Keeper.MercuryCore.TestHarness
@@ -15,16 +16,23 @@ namespace Keeper.MercuryCore.TestHarness
                             {
                                 pipeline.AddTcpEndpoint(options => options.Port = 5000);
 
-                                pipeline.UseAsciiChannel();
+                                pipeline.UseTelnetChannel();
 
                                 pipeline.UseMotd(options => options.Message = "Welcome to the Test Server!");
 
+                                pipeline.UseSimpleLogin();
+
                                 pipeline.Use((provider, next) =>
                                 {
-                                    var channel = provider.GetRequiredService<Session.ITextChannel>();
+                                    var channel = provider.GetRequiredService<ITextChannel>();
+                                    var sessionState = provider.GetRequiredService<IStateManager>();
 
                                     return async () =>
                                     {
+                                        var identityInfo = sessionState.GetIdentityInfo();
+
+                                        await channel.SendLineAsync($"Hi {identityInfo.Username}!");
+
                                         await channel.ReceiveLineAsync();
 
                                         await next();

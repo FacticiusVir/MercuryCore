@@ -1,5 +1,6 @@
 ﻿using Keeper.MercuryCore.Internal;
 using Keeper.MercuryCore.Session;
+using Keeper.MercuryCore.Session.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -46,6 +47,8 @@ namespace Keeper.MercuryCore.Pipeline.Internal
                 try
                 {
                     var sessionServices = new ChildServiceCollection<ISession>(this.services, this.serviceProvider);
+
+                    sessionServices.AddSingleton<IStateManager, StateManager>();
 
                     var sessionServiceProvider = sessionServices.BuildServiceProvider();
 

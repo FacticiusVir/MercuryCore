@@ -1,6 +1,7 @@
 ﻿using Keeper.MercuryCore;
 using Keeper.MercuryCore.Pipeline;
 using Keeper.MercuryCore.Session;
+using Keeper.MercuryCore.Session.Internal;
 using System;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -17,6 +18,25 @@ namespace Microsoft.Extensions.DependencyInjection
                 lock (channelCreateLock)
                 {
                     return channel ?? (channel = ActivatorUtilities.CreateInstance<AsciiChannel>(provider));
+                }
+            };
+
+            services.AddSingleton<IChannel>(channelCreate);
+            services.AddSingleton<ITextChannel>(channelCreate);
+
+            return services;
+        }
+
+        public static IServiceCollection<IPipeline> UseTelnetChannel(this IServiceCollection<IPipeline> services)
+        {
+            object channelCreateLock = new object();
+            TelnetChannel channel = null;
+
+            Func<IServiceProvider, TelnetChannel> channelCreate = provider =>
+            {
+                lock (channelCreateLock)
+                {
+                    return channel ?? (channel = ActivatorUtilities.CreateInstance<TelnetChannel>(provider));
                 }
             };
 

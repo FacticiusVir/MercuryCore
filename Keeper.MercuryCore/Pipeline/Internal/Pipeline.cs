@@ -53,6 +53,7 @@ namespace Keeper.MercuryCore.Pipeline.Internal
                     var sessionServiceProvider = sessionServices.BuildServiceProvider();
 
                     var channel = sessionServiceProvider.GetService<IChannel>();
+                    var textChannel = sessionServiceProvider.GetService<ITextChannel>();
 
                     if (channel == null)
                     {
@@ -62,7 +63,13 @@ namespace Keeper.MercuryCore.Pipeline.Internal
 
                     channel.Bind(connection);
 
-                    Func<Task> pipeline = () => Task.CompletedTask;
+                    Func<Task> pipeline = async () =>
+                    {
+                        if (textChannel != null)
+                        {
+                            await textChannel.ReceiveLineAsync();
+                        }
+                    };
 
                     foreach (var middleware in this.middlewares.Reverse())
                     {

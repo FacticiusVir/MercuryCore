@@ -1,7 +1,10 @@
 ﻿using Keeper.MercuryCore.Pipeline;
 using System;
+using System.IO;
 using System.Net;
+using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
@@ -11,7 +14,7 @@ namespace Keeper.MercuryCore.Tcp
         : IConnection
     {
         private TcpClient client;
-        private NetworkStream stream;
+        private Stream stream;
         private readonly long connectionTime;
 
         private ActionBlock<ArraySegment<byte>> sendBlock;
@@ -20,13 +23,22 @@ namespace Keeper.MercuryCore.Tcp
         private bool isClosed;
         private TaskCompletionSource<object> closed = new TaskCompletionSource<object>();
 
-        public TcpConnection(TcpClient client)
+        public TcpConnection(TcpClient client, X509Certificate serverCertificate = null)
         {
             this.client = client;
 
             this.RemoteEndPoint = this.client.Client.RemoteEndPoint;
 
             this.stream = client.GetStream();
+
+            if (serverCertificate != null)
+            {
+                var secureStream = new SslStream(this.stream);
+
+                secureStream.AuthenticateAsServerAsync(serverCertificate).Wait();
+
+                this.stream = secureStream;
+            }
 
             this.connectionTime = DateTime.UtcNow.Ticks;
 

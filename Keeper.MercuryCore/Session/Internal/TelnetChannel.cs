@@ -14,19 +14,22 @@ namespace Keeper.MercuryCore.Session.Internal
         : ITextChannel
     {
         private readonly ILogger<TelnetChannel> logger;
+        private readonly Encoding encoding;
+
         private IConnection connection;
         private IPropagatorBlock<ArraySegment<byte>, string> lineAccumulator;
 
-        public TelnetChannel(ILogger<TelnetChannel> logger)
+        public TelnetChannel(ILogger<TelnetChannel> logger, Encoding encoding)
         {
             this.logger = logger;
+            this.encoding = encoding;
         }
 
         public IDisposable Bind(IConnection connection)
         {
             this.connection = connection;
 
-            this.lineAccumulator = LineAccumulatorBlock.Create(logger, new Dictionary<byte, Func<Func<byte, bool>>>
+            this.lineAccumulator = LineAccumulatorBlock.Create(logger, encoding, new Dictionary<byte, Func<Func<byte, bool>>>
             {
                 { (byte)0xff, this.IacHandler}
             });
@@ -84,7 +87,7 @@ namespace Keeper.MercuryCore.Session.Internal
 
         public Task SendAsync(string message)
         {
-            var data = Encoding.ASCII.GetBytes(message);
+            var data = this.encoding.GetBytes(message);
 
             return this.connection.Send.SendAsync(new ArraySegment<byte>(data));
         }

@@ -25,7 +25,7 @@ namespace Keeper.MercuryCore.Session.Internal
         {
             this.connection = connection;
 
-            this.lineAccumulator = LineAccumulatorBlock.Create(this.logger);
+            this.lineAccumulator = LineAccumulatorBlock.Create(this.logger, Encoding.ASCII);
 
             return this.connection.Receive.LinkTo(this.lineAccumulator);
         }

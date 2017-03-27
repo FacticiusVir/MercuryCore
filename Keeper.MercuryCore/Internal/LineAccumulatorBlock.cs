@@ -9,7 +9,7 @@ namespace Keeper.MercuryCore.Internal
 {
     internal static class LineAccumulatorBlock
     {
-        public static IPropagatorBlock<ArraySegment<byte>, string> Create(ILogger logger, IDictionary<byte, Func<Func<byte, bool>>> escapeHandlers = null)
+        public static IPropagatorBlock<ArraySegment<byte>, string> Create(ILogger logger, Encoding encoding, IDictionary<byte, Func<Func<byte, bool>>> escapeHandlers = null)
         {
             var receiveBuffer = new Stack<byte>();
 
@@ -43,7 +43,7 @@ namespace Keeper.MercuryCore.Internal
                             receiveBuffer.Pop();
                         }
 
-                        var line = Encoding.ASCII.GetString(receiveBuffer.Reverse().ToArray());
+                        var line = encoding.GetString(receiveBuffer.Reverse().ToArray());
 
                         await output.SendAsync(line);
 

@@ -50,9 +50,9 @@ namespace Keeper.MercuryCore.Session.Internal
             }
         }
 
-        public Task SendAsync(string message)
+        public Task SendLineAsync(string message)
         {
-            var data = Encoding.ASCII.GetBytes(message);
+            var data = Encoding.ASCII.GetBytes(message + "\r\n");
 
             return this.connection.Send.SendAsync(new ArraySegment<byte>(data));
         }

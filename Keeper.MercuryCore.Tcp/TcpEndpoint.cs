@@ -22,7 +22,7 @@ namespace Keeper.MercuryCore.Tcp
         public TcpEndpoint(IOptions<TcpOptions> options, ILogger<TcpEndpoint> logger)
         {
             this.logger = logger;
-            this.listener = new TcpListener(IPAddress.Any, options.Value.Port);
+            this.listener = new TcpListener(options.Value.Address, options.Value.Port);
 
             this.logger.LogInformation("TCP Endpoint configured on port {Port}", options.Value.Port);
 

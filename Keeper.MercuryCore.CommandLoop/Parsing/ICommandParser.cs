@@ -1,4 +1,4 @@
-﻿namespace Keeper.DotMudCore.CommandLoop.Parsing
+﻿namespace Keeper.MercuryCore.CommandLoop.Parsing
 {
     public interface ICommandParser
     {

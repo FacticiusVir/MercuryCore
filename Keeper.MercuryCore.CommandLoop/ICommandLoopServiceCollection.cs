@@ -1,4 +1,4 @@
-﻿namespace Keeper.DotMudCore.CommandLoop
+﻿namespace Keeper.MercuryCore.CommandLoop
 {
     public interface ICommandLoopServiceCollection
     {

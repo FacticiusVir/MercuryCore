@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Keeper.DotMudCore.CommandLoop.Internal
+namespace Keeper.MercuryCore.CommandLoop.Internal
 {
     internal class CommandLoopServiceCollection
         : ICommandLoopServiceCollection

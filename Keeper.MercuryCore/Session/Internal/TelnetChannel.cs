@@ -56,7 +56,7 @@ namespace Keeper.MercuryCore.Session.Internal
                 {
                     TelnetOption option = (TelnetOption)bytes[1];
 
-                    this.logger.LogDebug($"Received IAC {(TelnetCommand)bytes[0]} {option}");
+                    this.logger.LogDebug("Received IAC {TelnetCommand} {TelnetOption}", (TelnetCommand)bytes[0], option);
 
                     return true;
                 }

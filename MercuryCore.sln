@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.9
+VisualStudioVersion = 15.0.26228.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Keeper.MercuryCore", "Keeper.MercuryCore\Keeper.MercuryCore.csproj", "{46E99BC3-6621-47EE-A86E-48073E030BFF}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Keeper.MercuryCore.Tcp", "Keeper.MercuryCore.Tcp\Keeper.MercuryCore.Tcp.csproj", "{FC230874-57CD-493F-B577-130D7D4CB430}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Keeper.MercuryCore.Identity", "Keeper.MercuryCore.Identity\Keeper.MercuryCore.Identity.csproj", "{81ECBD3E-97D8-41B4-8775-F0B67756CF8F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keeper.MercuryCore.CommandLoop", "Keeper.MercuryCore.CommandLoop\Keeper.MercuryCore.CommandLoop.csproj", "{4B5EFF4F-3C34-403C-B528-D49411905ACB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,6 +85,18 @@ Global
 		{81ECBD3E-97D8-41B4-8775-F0B67756CF8F}.Release|x64.Build.0 = Release|Any CPU
 		{81ECBD3E-97D8-41B4-8775-F0B67756CF8F}.Release|x86.ActiveCfg = Release|Any CPU
 		{81ECBD3E-97D8-41B4-8775-F0B67756CF8F}.Release|x86.Build.0 = Release|Any CPU
+		{4B5EFF4F-3C34-403C-B528-D49411905ACB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B5EFF4F-3C34-403C-B528-D49411905ACB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B5EFF4F-3C34-403C-B528-D49411905ACB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4B5EFF4F-3C34-403C-B528-D49411905ACB}.Debug|x64.Build.0 = Debug|Any CPU
+		{4B5EFF4F-3C34-403C-B528-D49411905ACB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4B5EFF4F-3C34-403C-B528-D49411905ACB}.Debug|x86.Build.0 = Debug|Any CPU
+		{4B5EFF4F-3C34-403C-B528-D49411905ACB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B5EFF4F-3C34-403C-B528-D49411905ACB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B5EFF4F-3C34-403C-B528-D49411905ACB}.Release|x64.ActiveCfg = Release|Any CPU
+		{4B5EFF4F-3C34-403C-B528-D49411905ACB}.Release|x64.Build.0 = Release|Any CPU
+		{4B5EFF4F-3C34-403C-B528-D49411905ACB}.Release|x86.ActiveCfg = Release|Any CPU
+		{4B5EFF4F-3C34-403C-B528-D49411905ACB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

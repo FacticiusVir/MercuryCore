@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace Keeper.DotMudCore.CommandLoop.Parsing.Internal
+namespace Keeper.MercuryCore.CommandLoop.Parsing.Internal
 {
     internal class VerbObjectParser
         : ICommandParser

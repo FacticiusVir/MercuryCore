@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Keeper.DotMudCore.CommandLoop.Parsing
+namespace Keeper.MercuryCore.CommandLoop.Parsing
 {
     public struct CommandInfo
     {

@@ -1,5 +1,5 @@
-﻿using Keeper.DotMudCore.CommandLoop;
-using Keeper.DotMudCore.CommandLoop.Internal;
+﻿using Keeper.MercuryCore.CommandLoop;
+using Keeper.MercuryCore.CommandLoop.Internal;
 using System;
 
 namespace Microsoft.Extensions.DependencyInjection

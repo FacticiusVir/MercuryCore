@@ -23,5 +23,13 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return services;
         }
+
+        public static IServiceCollection<ICommandLoop> AddHandler<T>(this IServiceCollection<ICommandLoop> services)
+            where T : class, ICommandHandler
+        {
+            services.AddSingleton<ICommandHandler, T>();
+
+            return services;
+        }
     }
 }

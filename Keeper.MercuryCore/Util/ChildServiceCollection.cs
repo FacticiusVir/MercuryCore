@@ -42,7 +42,18 @@ namespace Keeper.MercuryCore.Util
                     }
                     else
                     {
-                        this.AddSingleton(service.ServiceType, x => this.parentScope.ServiceProvider.GetService(service.ServiceType));
+                        if (service.ImplementationFactory != null)
+                        {
+                            this.AddSingleton(service.ServiceType, service.ImplementationFactory);
+                        }
+                        else if (service.ImplementationInstance != null)
+                        {
+                            this.AddSingleton(service.ServiceType, service.ImplementationInstance);
+                        }
+                        else
+                        {
+                            this.AddSingleton(service.ServiceType, service.ImplementationType);
+                        }
                     }
                 }
             }

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Keeper.MercuryCore.CommandLoop\Keeper.MercuryCore.CommandLoop.csproj" />
     <ProjectReference Include="..\Keeper.MercuryCore.Identity\Keeper.MercuryCore.Identity.csproj" />
     <ProjectReference Include="..\Keeper.MercuryCore.Serilog\Keeper.MercuryCore.Serilog.csproj" />
     <ProjectReference Include="..\Keeper.MercuryCore.Tcp\Keeper.MercuryCore.Tcp.csproj" />

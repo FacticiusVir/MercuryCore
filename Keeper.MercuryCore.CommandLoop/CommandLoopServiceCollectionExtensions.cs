@@ -1,5 +1,6 @@
 ﻿using Keeper.MercuryCore;
 using Keeper.MercuryCore.CommandLoop;
+using Keeper.MercuryCore.CommandLoop.Internal;
 using Keeper.MercuryCore.Util;
 using System;
 
@@ -12,6 +13,13 @@ namespace Microsoft.Extensions.DependencyInjection
             var collectionWrapper = new WrappedServiceCollection<ICommandLoop>(services);
 
             servicesAction(collectionWrapper);
+
+            return services;
+        }
+
+        public static IServiceCollection<ICommandLoop> AddQuitHandler(this IServiceCollection<ICommandLoop> services)
+        {
+            services.AddSingleton<ICommandHandler, QuitCommandHandler>();
 
             return services;
         }

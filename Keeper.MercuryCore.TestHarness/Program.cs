@@ -33,9 +33,18 @@ namespace Keeper.MercuryCore.TestHarness
 
                                         await channel.SendLineAsync($"Hi {identityInfo.Username}!");
 
-                                        await channel.ReceiveLineAsync();
+                                        await next();
                                     };
                                 });
+
+                                pipeline.AddCommandLoop(services =>
+                                {
+                                    services.AddVerbObjectParser();
+
+                                    services.AddQuitHandler();
+                                });
+
+                                pipeline.UseCommandLoop();
                             })
                             .Build();
 

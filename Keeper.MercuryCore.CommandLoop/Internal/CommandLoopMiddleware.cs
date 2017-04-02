@@ -21,7 +21,7 @@ namespace Keeper.MercuryCore.CommandLoop.Internal
         {
             var channel = serviceProvider.GetRequiredService<ITextChannel>();
             var parser = serviceProvider.GetRequiredService<ICommandParser>();
-            var handlerLookup = serviceProvider.GetServices<ICommandHandler>().ToDictionary(x => x.Name);
+            var handlerLookup = serviceProvider.GetServices<ICommandHandler>().ToDictionary(x => x.Name.ToUpperInvariant());
 
             return async () =>
             {
@@ -35,7 +35,7 @@ namespace Keeper.MercuryCore.CommandLoop.Internal
 
                     if (info.IsValid)
                     {
-                        if (!handlerLookup.TryGetValue(info.Name, out var handler))
+                        if (handlerLookup.TryGetValue(info.Name, out var handler))
                         {
                             await handler.Handle(this, info);
                         }

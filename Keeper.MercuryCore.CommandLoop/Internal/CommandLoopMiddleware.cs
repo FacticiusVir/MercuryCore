@@ -3,42 +3,50 @@ using Keeper.MercuryCore.Pipeline;
 using Keeper.MercuryCore.Session;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Keeper.MercuryCore.CommandLoop.Internal
 {
     public class CommandLoopMiddleware
-        : IMiddleware
+        : IMiddleware, ICommandLoop
     {
+        public bool IsRunning
+        {
+            get;
+            set;
+        }
+
         public Func<Task> BuildHandler(IServiceProvider serviceProvider, Func<Task> next)
         {
-            var channel = serviceProvider.GetService<ITextChannel>();
-            var parser = serviceProvider.GetService<ICommandParser>();
+            var channel = serviceProvider.GetRequiredService<ITextChannel>();
+            var parser = serviceProvider.GetRequiredService<ICommandParser>();
+            var handlerLookup = serviceProvider.GetServices<ICommandHandler>().ToDictionary(x => x.Name);
 
             return async () =>
             {
-                bool isQuitting = false;
+                this.IsRunning = true;
 
-                while (!isQuitting)
+                while (this.IsRunning)
                 {
-                    string prompt = "> ";
-
-                    await channel.SendLineAsync(prompt);
-
                     var commandLine = await channel.ReceiveLineAsync();
 
                     var info = parser.Parse(commandLine);
 
                     if (info.IsValid)
                     {
-                        if (info.Name == "QUIT")
+                        if (!handlerLookup.TryGetValue(info.Name, out var handler))
                         {
-                            isQuitting = true;
+                            await handler.Handle(this, info);
                         }
                         else
                         {
                             await channel.SendLineAsync($"Unknown command {info.Name}");
                         }
+                    }
+                    else
+                    {
+                        await channel.SendLineAsync("Invalid command");
                     }
                 }
             };

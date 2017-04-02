@@ -1,6 +1,6 @@
-﻿using Keeper.MercuryCore.Internal;
-using Keeper.MercuryCore.Session;
+﻿using Keeper.MercuryCore.Session;
 using Keeper.MercuryCore.Session.Internal;
+using Keeper.MercuryCore.Util;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;

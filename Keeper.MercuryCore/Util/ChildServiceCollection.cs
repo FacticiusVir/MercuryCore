@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Keeper.MercuryCore.Internal
+namespace Keeper.MercuryCore.Util
 {
-    internal class ChildServiceCollection<T>
+    public class ChildServiceCollection<T>
         : List<ServiceDescriptor>, IServiceCollection<T>, IDisposable
     {
         private IServiceScope parentScope;

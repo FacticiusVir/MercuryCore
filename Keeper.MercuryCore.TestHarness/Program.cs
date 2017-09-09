@@ -16,6 +16,8 @@ namespace Keeper.MercuryCore.TestHarness
                             {
                                 pipeline.AddTcpEndpoint(options => options.Port = 5000);
 
+                                pipeline.AddInMemoryIdentity();
+
                                 pipeline.UseTelnetChannel();
 
                                 pipeline.UseMotd(options => options.Message = "Welcome to the Test Server!");

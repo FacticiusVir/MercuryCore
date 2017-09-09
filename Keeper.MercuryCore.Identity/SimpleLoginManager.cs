@@ -1,6 +1,8 @@
 ﻿using Keeper.MercuryCore;
 using Keeper.MercuryCore.Session;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 
 namespace Keeper.MercuryCore.Identity
@@ -17,8 +19,10 @@ namespace Keeper.MercuryCore.Identity
             this.userManager = userManager;
         }
 
-        public async Task<AuthenticateResult> Authenticate(ITextChannel channel)
+        public async Task<AuthenticateResult> AuthenticateAsync(IServiceProvider channelProvider)
         {
+            var channel = channelProvider.GetRequiredService<ITextChannel>();
+
             this.logger.LogDebug("Logging in");
 
             string username = null;

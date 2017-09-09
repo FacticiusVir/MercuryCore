@@ -52,7 +52,7 @@ namespace Keeper.MercuryCore.Util
                         }
                         else
                         {
-                            this.AddSingleton(service.ServiceType, service.ImplementationType);
+                            this.AddSingleton(service.ServiceType, this.parentScope.ServiceProvider.GetService(service.ServiceType));
                         }
                     }
                 }

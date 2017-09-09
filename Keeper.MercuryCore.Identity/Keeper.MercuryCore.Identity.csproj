@@ -1,7 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.0.2</Version>
+    <Authors>FacticiusVir</Authors>
+    <Company />
+    <Product>MercuryCore</Product>
+    <Description>Identity management extensions for MercuryCore</Description>
+    <Copyright>Copyright 2017 Andrew Armstrong/FacticiusVir</Copyright>
+    <PackageProjectUrl>https://github.com/FacticiusVir/MercuryCore</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

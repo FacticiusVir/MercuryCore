@@ -6,11 +6,17 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class IdentityServiceCollectionExtensions
     {
-        public static IServiceCollection<IPipeline> UseSimpleLogin(this IServiceCollection<IPipeline> services)
+        public static IServiceCollection AddInMemoryIdentity(this IServiceCollection services)
         {
             services.AddSingleton<IUserManager, InMemoryUserManager>();
-            services.AddSingleton<IIdentityManager, SimpleLoginManager>();
-            services.Use<IdentityMiddleware>();
+
+            return services;
+        }
+
+        public static IServiceCollection<IPipeline> UseSimpleLogin(this IServiceCollection<IPipeline> services)
+        {
+            services.AddSingleton<SimpleLoginManager>();
+            services.Use<IdentityMiddleware<SimpleLoginManager>>();
 
             return services;
         }

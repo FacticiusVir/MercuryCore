@@ -7,38 +7,51 @@ using System.Threading.Tasks;
 
 namespace Keeper.MercuryCore.Identity
 {
-    public class IdentityMiddleware
+    public class IdentityMiddleware<T>
         : IMiddleware
+        where T : IIdentityManager
     {
-        public IdentityMiddleware()
-        {
-        }
-
         public Func<Task> BuildHandler(IServiceProvider serviceProvider, Func<Task> next)
         {
-            var identityManager = serviceProvider.GetService<IIdentityManager>();
-            var logger = serviceProvider.GetService<ILogger<IdentityMiddleware>>();
-            var channel = serviceProvider.GetService<ITextChannel>();
+            var identityManager = serviceProvider.GetService<T>();
+            var logger = serviceProvider.GetService<ILogger<T>>();
             var sessionState = serviceProvider.GetService<IStateManager>();
+            var persistance = serviceProvider.GetServices<IIdentityPersistance>();
 
             return async () =>
             {
-                var result = await identityManager.Authenticate(channel);
-
-                if (result.IsSuccess)
+                if (!sessionState.TryGetIdentityInfo(out var info))
                 {
-                    sessionState.Set(new IdentityInfo(result.Username, result.Type == AuthenticateResultType.Registered));
+                    var result = await identityManager.AuthenticateAsync(serviceProvider);
 
-                    using (logger.BeginPropertyScope("Username", result.Username))
+                    if (result.IsSuccess)
                     {
+                        sessionState.Set(new IdentityInfo(result.Username, result.Type == AuthenticateResultType.Registered));
+
+                        foreach (var manager in persistance)
+                        {
+                            await manager.PersistAsync(serviceProvider);
+                        }
+
+                        using (logger.BeginPropertyScope("Username", result.Username))
+                        {
+                            await next();
+                        }
+
+                        sessionState.Remove<IdentityInfo>();
+                    }
+                    else
+                    {
+                        logger.LogWarning("Authenticate failed: {AuthenticateResult}", result.Type);
+
                         await next();
                     }
-
-                    sessionState.Remove<IdentityInfo>();
                 }
                 else
                 {
-                    logger.LogWarning("Authenticate failed: {AuthenticateResult}", result.Type);
+                    logger.LogInformation($"{typeof(T).Name} Authentication skipped.");
+
+                    await next();
                 }
             };
         }

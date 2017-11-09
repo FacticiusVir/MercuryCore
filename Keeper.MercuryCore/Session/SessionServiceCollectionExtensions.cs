@@ -3,6 +3,7 @@ using Keeper.MercuryCore.Pipeline;
 using Keeper.MercuryCore.Session;
 using Keeper.MercuryCore.Session.Internal;
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -11,38 +12,18 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection<IPipeline> UseAsciiChannel(this IServiceCollection<IPipeline> services)
         {
-            object channelCreateLock = new object();
-            AsciiChannel channel = null;
-
-            Func<IServiceProvider, AsciiChannel> channelCreate = provider =>
-            {
-                lock (channelCreateLock)
-                {
-                    return channel ?? (channel = ActivatorUtilities.CreateInstance<AsciiChannel>(provider));
-                }
-            };
-
-            services.AddSingleton<IChannel>(channelCreate);
-            services.AddSingleton<ITextChannel>(channelCreate);
+            services.AddScoped<AsciiChannel>();
+            services.AddScoped<IChannel>(provider => provider.GetService<TelnetChannel>());
+            services.AddScoped<ITextChannel>(provider => provider.GetService<TelnetChannel>());
 
             return services;
         }
 
         public static IServiceCollection<IPipeline> UseTelnetChannel(this IServiceCollection<IPipeline> services, Encoding encoding = null)
         {
-            object channelCreateLock = new object();
-            TelnetChannel channel = null;
-
-            Func<IServiceProvider, TelnetChannel> channelCreate = provider =>
-            {
-                lock (channelCreateLock)
-                {
-                    return channel ?? (channel = ActivatorUtilities.CreateInstance<TelnetChannel>(provider, encoding ?? Encoding.ASCII));
-                }
-            };
-
-            services.AddSingleton<IChannel>(channelCreate);
-            services.AddSingleton<ITextChannel>(channelCreate);
+            services.AddScoped(provider => ActivatorUtilities.CreateInstance<TelnetChannel>(provider, encoding ?? Encoding.ASCII));
+            services.AddScoped<IChannel>(provider => provider.GetService<TelnetChannel>());
+            services.AddScoped<ITextChannel>(provider => provider.GetService<TelnetChannel>());
 
             return services;
         }

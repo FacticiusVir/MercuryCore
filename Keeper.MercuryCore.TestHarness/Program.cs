@@ -44,6 +44,7 @@ namespace Keeper.MercuryCore.TestHarness
                                     services.AddVerbObjectParser();
 
                                     services.AddQuitHandler();
+                                    services.AddHandler<LookCommandHandler>();
                                 });
 
                                 pipeline.UseCommandLoop();

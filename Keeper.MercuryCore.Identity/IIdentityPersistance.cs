@@ -6,5 +6,7 @@ namespace Keeper.MercuryCore.Identity
     public interface IIdentityPersistance
     {
         Task PersistAsync(IServiceProvider sessionProvider);
+
+        Task ClearAsync(IServiceProvider serviceProvider);
     }
 }

@@ -2,6 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>FacticiusVir</Authors>
+    <Company />
+    <Product>MercuryCore</Product>
+    <Copyright>Copyright 2017 Andrew Armstrong/FacticiusVir</Copyright>
+    <PackageProjectUrl>https://github.com/FacticiusVir/MercuryCore</PackageProjectUrl>
+    <Version>0.0.3</Version>
   </PropertyGroup>
 
   <ItemGroup>

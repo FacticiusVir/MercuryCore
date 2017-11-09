@@ -17,17 +17,13 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        public static IServiceCollection<ICommandLoop> AddQuitHandler(this IServiceCollection<ICommandLoop> services)
-        {
-            services.AddSingleton<ICommandHandler, QuitCommandHandler>();
-
-            return services;
-        }
+        public static IServiceCollection<ICommandLoop> AddQuitHandler(this IServiceCollection<ICommandLoop> services) => services.AddHandler<QuitCommandHandler>();
 
         public static IServiceCollection<ICommandLoop> AddHandler<T>(this IServiceCollection<ICommandLoop> services)
             where T : class, ICommandHandler
         {
-            services.AddSingleton<ICommandHandler, T>();
+            services.AddSingleton<T>();
+            services.AddSingleton<ICommandHandler>(provider => provider.GetRequiredService<T>());
 
             return services;
         }

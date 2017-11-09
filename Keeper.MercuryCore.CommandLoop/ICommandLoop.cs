@@ -1,4 +1,6 @@
-﻿namespace Keeper.MercuryCore.CommandLoop
+﻿using System;
+
+namespace Keeper.MercuryCore.CommandLoop
 {
     public interface ICommandLoop
     {
@@ -6,6 +8,11 @@
         {
             get;
             set;
+        }
+
+        IServiceProvider Provider
+        {
+            get;
         }
     }
 }

@@ -9,12 +9,22 @@ using System.Threading.Tasks;
 namespace Keeper.MercuryCore.CommandLoop.Internal
 {
     public class CommandLoopMiddleware
-        : IMiddleware, ICommandLoop
+        : IMiddleware
     {
-        public bool IsRunning
+        private class LoopInstance
+            : ICommandLoop
         {
-            get;
-            set;
+            public bool IsRunning
+            {
+                get;
+                set;
+            }
+
+            public IServiceProvider Provider
+            {
+                get;
+                set;
+            }
         }
 
         public Func<Task> BuildHandler(IServiceProvider serviceProvider, Func<Task> next)
@@ -25,9 +35,13 @@ namespace Keeper.MercuryCore.CommandLoop.Internal
 
             return async () =>
             {
-                this.IsRunning = true;
-
-                while (this.IsRunning)
+                var loopInstance = new LoopInstance
+                {
+                    IsRunning = true,
+                    Provider = serviceProvider
+                };
+                
+                while (loopInstance.IsRunning)
                 {
                     var commandLine = await channel.ReceiveLineAsync();
 
@@ -37,7 +51,7 @@ namespace Keeper.MercuryCore.CommandLoop.Internal
                     {
                         if (handlerLookup.TryGetValue(info.Name, out var handler))
                         {
-                            await handler.Handle(this, info);
+                            await handler.Handle(loopInstance, info);
                         }
                         else
                         {

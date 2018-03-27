@@ -10,11 +10,15 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class SessionServiceCollectionExtensions
     {
-        public static IServiceCollection<IPipeline> UseAsciiChannel(this IServiceCollection<IPipeline> services)
+        public static IServiceCollection<IPipeline> UseAsciiChannel(this IServiceCollection<IPipeline> services) => services.UsePlainTextChannel(Encoding.ASCII);
+
+        public static IServiceCollection<IPipeline> UseUtf8Channel(this IServiceCollection<IPipeline> services) => services.UsePlainTextChannel(Encoding.UTF8);
+
+        public static IServiceCollection<IPipeline> UsePlainTextChannel(this IServiceCollection<IPipeline> services, Encoding textEncoding)
         {
-            services.AddScoped<AsciiChannel>();
-            services.AddScoped<IChannel>(provider => provider.GetService<AsciiChannel>());
-            services.AddScoped<ITextChannel>(provider => provider.GetService<AsciiChannel>());
+            services.AddScoped(provider => ActivatorUtilities.CreateInstance<PlainTextChannel>(provider, textEncoding));
+            services.AddScoped<IChannel>(provider => provider.GetService<PlainTextChannel>());
+            services.AddScoped<ITextChannel>(provider => provider.GetService<PlainTextChannel>());
 
             return services;
         }

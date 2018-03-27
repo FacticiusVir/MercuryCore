@@ -44,6 +44,10 @@ namespace Keeper.MercuryCore.WebSockets
 
         public string UniqueIdentifier => $"{this.endpointName}/{this.connectionTime}";
 
+        public string EndpointName => this.endpointName;
+
+        public ConnectionType Type => ConnectionType.Chunked;
+
         private async Task SendAsync(ArraySegment<byte> data)
         {
             try
@@ -66,15 +70,13 @@ namespace Keeper.MercuryCore.WebSockets
 
                     var result = await this.socket.ReceiveAsync(new ArraySegment<byte>(data), CancellationToken.None);
 
-                    data[result.Count] = (byte)'\n';
-
                     if (result.MessageType == WebSocketMessageType.Close)
                     {
                         this.Close();
                     }
                     else
                     {
-                        await this.receiveBlock.SendAsync(new ArraySegment<byte>(data, 0, result.Count + 1));
+                        await this.receiveBlock.SendAsync(new ArraySegment<byte>(data, 0, result.Count));
 
                         this.BeginReceive();
                     }
@@ -91,6 +93,11 @@ namespace Keeper.MercuryCore.WebSockets
             if (!this.isClosed)
             {
                 this.isClosed = true;
+
+                if (this.socket.State != WebSocketState.Closed)
+                {
+                    this.socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None).Wait();
+                }
 
                 this.socket.Dispose();
                 this.socket = null;

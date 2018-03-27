@@ -14,6 +14,10 @@ namespace Keeper.MercuryCore.Pipeline
 
         void Close();
 
+        string EndpointName { get; }
+
         string UniqueIdentifier { get; }
+
+        ConnectionType Type { get; }
     }
 }

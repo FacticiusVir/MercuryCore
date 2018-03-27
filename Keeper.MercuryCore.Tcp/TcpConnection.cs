@@ -73,6 +73,10 @@ namespace Keeper.MercuryCore.Tcp
 
         public IReceivableSourceBlock<ArraySegment<byte>> Receive => this.receiveBlock;
 
+        public string EndpointName => this.endpointName;
+
+        public ConnectionType Type => ConnectionType.Stream;
+
         private async Task SendAsync(ArraySegment<byte> data)
         {
             try

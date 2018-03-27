@@ -19,7 +19,7 @@ namespace Keeper.MercuryCore.TestHarness
 
                                 pipeline.AddInMemoryIdentity();
 
-                                pipeline.UseTelnetChannel();
+                                pipeline.UseUtf8Channel();
 
                                 pipeline.UseMotd(options => options.Message = "Welcome to the Test Server!");
 

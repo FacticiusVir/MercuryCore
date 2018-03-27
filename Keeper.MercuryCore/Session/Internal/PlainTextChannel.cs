@@ -9,23 +9,41 @@ using System.Threading;
 
 namespace Keeper.MercuryCore.Session.Internal
 {
-    internal class AsciiChannel
+    internal class PlainTextChannel
         : ITextChannel
     {
-        private readonly ILogger<AsciiChannel> logger;
+        private readonly ILogger<PlainTextChannel> logger;
+        private readonly Encoding textEncoding;
         private IConnection connection;
         private IPropagatorBlock<ArraySegment<byte>, string> lineAccumulator;
 
-        public AsciiChannel(ILogger<AsciiChannel> logger)
+        public PlainTextChannel(ILogger<PlainTextChannel> logger, Encoding textEncoding)
         {
             this.logger = logger;
+            this.textEncoding = textEncoding;
         }
 
         public IDisposable Bind(IConnection connection)
         {
             this.connection = connection;
 
-            this.lineAccumulator = LineAccumulatorBlock.Create(this.logger, Encoding.ASCII);
+            if (connection.Type == ConnectionType.Stream)
+            {
+                this.lineAccumulator = LineAccumulatorBlock.Create(this.logger, this.textEncoding);
+            }
+            else
+            {
+                var encodingBuffer = new BufferBlock<string>();
+
+                var encodingAction = new ActionBlock<ArraySegment<byte>>(async data =>
+                {
+                    string value = this.textEncoding.GetString(data.Array, data.Offset, data.Count);
+
+                    await encodingBuffer.SendAsync(value);
+                });
+
+                this.lineAccumulator = DataflowBlock.Encapsulate(encodingAction, encodingBuffer);
+            }
 
             return this.connection.Receive.LinkTo(this.lineAccumulator);
         }

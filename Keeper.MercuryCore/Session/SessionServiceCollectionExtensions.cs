@@ -13,8 +13,8 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection<IPipeline> UseAsciiChannel(this IServiceCollection<IPipeline> services)
         {
             services.AddScoped<AsciiChannel>();
-            services.AddScoped<IChannel>(provider => provider.GetService<TelnetChannel>());
-            services.AddScoped<ITextChannel>(provider => provider.GetService<TelnetChannel>());
+            services.AddScoped<IChannel>(provider => provider.GetService<AsciiChannel>());
+            services.AddScoped<ITextChannel>(provider => provider.GetService<AsciiChannel>());
 
             return services;
         }

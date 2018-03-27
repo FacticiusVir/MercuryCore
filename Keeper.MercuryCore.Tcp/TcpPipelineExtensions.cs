@@ -7,18 +7,18 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class TcpPipelineExtensions
     {
-        public static IServiceCollection<IPipeline> AddTcpEndpoint(this IServiceCollection<IPipeline> services)
+        public static IServiceCollection<IPipeline> AddTcpEndpoint(this IServiceCollection<IPipeline> services, string name)
         {
-            services.AddSingleton<IEndpoint, TcpEndpoint>();
+            services.AddSingleton<IEndpoint>(provider => ActivatorUtilities.CreateInstance<TcpEndpoint>(provider, name));
 
             return services;
         }
 
-        public static IServiceCollection<IPipeline> AddTcpEndpoint(this IServiceCollection<IPipeline> services, Action<TcpOptions> optionsAction)
+        public static IServiceCollection<IPipeline> AddTcpEndpoint(this IServiceCollection<IPipeline> services, string name, Action<TcpOptions> optionsAction)
         {
-            services.Configure(optionsAction);
+            services.Configure(name, optionsAction);
 
-            return services.AddTcpEndpoint();
+            return services.AddTcpEndpoint(name);
         }
     }
 }

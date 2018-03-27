@@ -14,7 +14,8 @@ namespace Keeper.MercuryCore.TestHarness
                                                             .MinimumLevel.Debug())
                             .ConfigurePipeline(pipeline =>
                             {
-                                pipeline.AddTcpEndpoint(options => options.Port = 5000);
+                                pipeline.AddTcpEndpoint("tcp", options => options.Port = 1234);
+                                pipeline.AddWebSocketEndpoint("websockets");
 
                                 pipeline.AddInMemoryIdentity();
 

@@ -14,6 +14,7 @@
     <ProjectReference Include="..\Keeper.MercuryCore.Identity\Keeper.MercuryCore.Identity.csproj" />
     <ProjectReference Include="..\Keeper.MercuryCore.Serilog\Keeper.MercuryCore.Serilog.csproj" />
     <ProjectReference Include="..\Keeper.MercuryCore.Tcp\Keeper.MercuryCore.Tcp.csproj" />
+    <ProjectReference Include="..\Keeper.MercuryCore.WebSockets\Keeper.MercuryCore.WebSockets.csproj" />
     <ProjectReference Include="..\Keeper.MercuryCore\Keeper.MercuryCore.csproj" />
   </ItemGroup>
 

@@ -19,24 +19,32 @@ namespace Keeper.MercuryCore.Tcp
         private readonly object connectionsLock = new object();
         private readonly X509Certificate serverCertificate;
 
-        public TcpEndpoint(IOptions<TcpOptions> options, ILogger<TcpEndpoint> logger)
+        public TcpEndpoint(IOptionsFactory<TcpOptions> optionsFactory, ILogger<TcpEndpoint> logger, string name)
         {
+            var options = optionsFactory.Create(name);
+
             this.logger = logger;
-            this.listener = new TcpListener(options.Value.Address, options.Value.Port);
+            this.listener = new TcpListener(options.Address, options.Port);
+            this.Name = name;
 
-            this.logger.LogInformation("TCP Endpoint configured on port {Port}", options.Value.Port);
+            this.logger.LogInformation("TCP Endpoint configured on port {Port}", options.Port);
 
-            if (options.Value.SslCertValue != null)
+            if (options.SslCertValue != null)
             {
                 using (var certStore = new X509Store(StoreName.My, StoreLocation.LocalMachine))
                 {
                     certStore.Open(OpenFlags.OpenExistingOnly);
 
-                    this.serverCertificate = certStore.Certificates.Find(options.Value.SslCertFind, options.Value.SslCertValue, false)[0];
+                    this.serverCertificate = certStore.Certificates.Find(options.SslCertFind, options.SslCertValue, false)[0];
 
                     this.logger.LogInformation("TCP Endpoint secured for subject {CertificateSubject}", this.serverCertificate.Subject);
                 }
             }
+        }
+
+        public string Name
+        {
+            get;
         }
 
         public event Func<IConnection, Task> NewConnection;
@@ -77,7 +85,7 @@ namespace Keeper.MercuryCore.Tcp
 
                     this.BeginAccept();
 
-                    newConnection = new TcpConnection(client, this.serverCertificate);
+                    newConnection = new TcpConnection(this.Name, client, this.serverCertificate);
 
                     this.connections.Add(newConnection);
 

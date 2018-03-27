@@ -1,21 +1,19 @@
 ﻿using Keeper.MercuryCore.Pipeline;
 using System;
-using System.IO;
-using System.Net;
-using System.Net.Security;
-using System.Net.Sockets;
-using System.Security.Cryptography.X509Certificates;
+using System.Collections.Generic;
+using System.Net.WebSockets;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
-namespace Keeper.MercuryCore.Tcp
+namespace Keeper.MercuryCore.WebSockets
 {
-    public class TcpConnection
+    public class WebSocketConnection
         : IConnection
     {
-        private string endpointName;
-        private TcpClient client;
-        private Stream stream;
+        private readonly string endpointName;
+        private WebSocket socket;
         private readonly long connectionTime;
 
         private ActionBlock<ArraySegment<byte>> sendBlock;
@@ -24,23 +22,10 @@ namespace Keeper.MercuryCore.Tcp
         private bool isClosed;
         private TaskCompletionSource<object> closed = new TaskCompletionSource<object>();
 
-        public TcpConnection(string endpointName, TcpClient client, X509Certificate serverCertificate = null)
+        public WebSocketConnection(string endpointName, WebSocket socket)
         {
             this.endpointName = endpointName;
-            this.client = client;
-
-            this.RemoteEndPoint = this.client.Client.RemoteEndPoint;
-
-            this.stream = client.GetStream();
-
-            if (serverCertificate != null)
-            {
-                var secureStream = new SslStream(this.stream);
-
-                secureStream.AuthenticateAsServerAsync(serverCertificate).Wait();
-
-                this.stream = secureStream;
-            }
+            this.socket = socket;
 
             this.connectionTime = DateTime.UtcNow.Ticks;
 
@@ -51,34 +36,19 @@ namespace Keeper.MercuryCore.Tcp
             this.BeginReceive();
         }
 
-        public EndPoint RemoteEndPoint
-        {
-            get;
-            private set;
-        }
-
-        public bool IsOpen
-        {
-            get
-            {
-                return !this.isClosed;
-            }
-        }
-
-        public Task Closed => this.closed.Task;
-
-        public string UniqueIdentifier => $"{this.endpointName}/{this.RemoteEndPoint}/{this.connectionTime}";
-
         public ITargetBlock<ArraySegment<byte>> Send => this.sendBlock;
 
         public IReceivableSourceBlock<ArraySegment<byte>> Receive => this.receiveBlock;
+
+        public Task Closed => this.closed.Task;
+
+        public string UniqueIdentifier => $"{this.endpointName}/{this.connectionTime}";
 
         private async Task SendAsync(ArraySegment<byte> data)
         {
             try
             {
-                await this.stream.WriteAsync(data.Array, data.Offset, data.Count);
-                await this.stream.FlushAsync();
+                await this.socket.SendAsync(data, WebSocketMessageType.Text, true, CancellationToken.None);
             }
             catch
             {
@@ -94,15 +64,17 @@ namespace Keeper.MercuryCore.Tcp
                 {
                     var data = new byte[1024];
 
-                    int count = await this.stream.ReadAsync(data, 0, data.Length);
+                    var result = await this.socket.ReceiveAsync(new ArraySegment<byte>(data), CancellationToken.None);
 
-                    if (count == 0)
+                    data[result.Count] = (byte)'\n';
+
+                    if (result.MessageType == WebSocketMessageType.Close)
                     {
                         this.Close();
                     }
                     else
                     {
-                        await this.receiveBlock.SendAsync(new ArraySegment<byte>(data, 0, count));
+                        await this.receiveBlock.SendAsync(new ArraySegment<byte>(data, 0, result.Count + 1));
 
                         this.BeginReceive();
                     }
@@ -120,8 +92,8 @@ namespace Keeper.MercuryCore.Tcp
             {
                 this.isClosed = true;
 
-                this.client.Dispose();
-                this.client = null;
+                this.socket.Dispose();
+                this.socket = null;
 
                 this.closed.SetResult(null);
             }

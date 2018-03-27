@@ -63,6 +63,7 @@
         TeloptSspiLogon = 139,
         TeloptPragmaHeartbeat = 140,
         Atcp = 200,
+        Gmcp = 201,
         ExtendedOptionsList = 255
     }
 }

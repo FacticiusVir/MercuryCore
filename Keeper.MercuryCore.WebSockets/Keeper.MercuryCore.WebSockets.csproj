@@ -2,6 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.0.5</Version>
+    <Authors>FacticiusVir</Authors>
+    <Company>FacticiusVir</Company>
+    <Product>MercuryCore</Product>
+    <Description>WebSockets Endpoint extension for the Mercury Core MUD framework</Description>
+    <Copyright>Copyright 2017 Andrew Armstrong/FacticiusVir</Copyright>
+    <PackageProjectUrl>https://github.com/FacticiusVir/MercuryCore</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

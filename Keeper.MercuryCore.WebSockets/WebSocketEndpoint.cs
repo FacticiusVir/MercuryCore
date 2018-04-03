@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace Keeper.MercuryCore.WebSockets
@@ -37,7 +38,22 @@ namespace Keeper.MercuryCore.WebSockets
                                 })
                                 .UseKestrel(kestrelOptions =>
                                 {
-                                    kestrelOptions.Listen(options.Address, port);
+                                    kestrelOptions.Listen(options.Address, port, listenOptions =>
+                                    {
+                                        if (options.SslCertValue != null)
+                                        {
+                                            using (var certStore = new X509Store(StoreName.My, StoreLocation.LocalMachine))
+                                            {
+                                                certStore.Open(OpenFlags.OpenExistingOnly);
+
+                                                var serverCertificate = certStore.Certificates.Find(options.SslCertFind, options.SslCertValue, false)[0];
+
+                                                listenOptions.UseHttps(serverCertificate);
+
+                                                this.logger.LogInformation("TCP Endpoint secured for subject {CertificateSubject}", serverCertificate.Subject);
+                                            }
+                                        }
+                                    });
                                 })
                                 .UseStartup<Startup>()
                                 .Build();

@@ -1,6 +1,10 @@
 ﻿using Keeper.MercuryCore.Session;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Serilog;
+using System;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Keeper.MercuryCore.TestHarness
 {
@@ -9,50 +13,29 @@ namespace Keeper.MercuryCore.TestHarness
         static void Main(string[] args)
         {
             var host = new HostBuilder()
-                            .ConfigureSerilog(config => config
-                                                            .WriteTo.LiterateConsole()
-                                                            .MinimumLevel.Debug())
-                            .ConfigurePipeline(pipeline =>
-                            {
-                                pipeline.AddTcpEndpoint("tcp", options => options.Port = 1234);
-                                pipeline.AddWebSocketEndpoint("websockets");
-
-                                pipeline.AddInMemoryIdentity();
-
-                                pipeline.UseUtf8Channel();
-
-                                pipeline.UseMotd(options => options.Message = "Welcome to the Test Server!");
-
-                                pipeline.UseSimpleLogin();
-
-                                pipeline.Use((provider, next) =>
-                                {
-                                    var channel = provider.GetRequiredService<ITextChannel>();
-                                    var sessionState = provider.GetRequiredService<IStateManager>();
-
-                                    return async () =>
+                                    .ConfigureServices(services => services.AddLogging(logging => logging.SetMinimumLevel(LogLevel.Trace)))
+                                    .ConfigureSerilog(config => config
+                                                                    .WriteTo.LiterateConsole()
+                                                                    .MinimumLevel.Debug())
+                                    .ConfigurePipeline(pipeline =>
                                     {
-                                        var identityInfo = sessionState.GetIdentityInfo();
+                                        pipeline.AddTcpEndpoint("tcp", options => options.Port = 1234);
+                                        pipeline.UseTelnetChannel(Encoding.UTF8);
 
-                                        await channel.SendLineAsync($"Hi {identityInfo.Username}!");
-
-                                        await next();
-                                    };
-                                });
-
-                                pipeline.AddCommandLoop(services =>
-                                {
-                                    services.AddVerbObjectParser();
-
-                                    services.AddQuitHandler();
-                                    services.AddHandler<LookCommandHandler>();
-                                });
-
-                                pipeline.UseCommandLoop();
-                            })
-                            .Build();
+                                        pipeline.Use((provider, next) => () => Run(provider));
+                                    })
+                                    .Build();
 
             host.Run();
+        }
+
+        private static async Task Run(IServiceProvider provider)
+        {
+            var channel = provider.GetRequiredService<ITelnetChannel>();
+
+            await channel.SendLineAsync("Sandbox");
+
+            while (await channel.ReceiveLineAsync() != "quit") ;
         }
     }
 }

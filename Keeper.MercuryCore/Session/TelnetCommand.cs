@@ -23,9 +23,59 @@
 
     public static class TelnetCommandExtensions
     {
+        public static bool IsNegotiation(this TelnetCommand command)
+        {
+            switch (command)
+            {
+                case TelnetCommand.WILL:
+                case TelnetCommand.WONT:
+                case TelnetCommand.DO:
+                case TelnetCommand.DONT:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public static bool IsPositive(this TelnetCommand command)
+        {
+            switch (command)
+            {
+                case TelnetCommand.WILL:
+                case TelnetCommand.DO:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public static TelnetCommand AsPositive(this TelnetCommand command)
+        {
+            if (!command.IsNegotiation() || command.IsPositive())
+            {
+                return command;
+            }
+            else
+            {
+                return command.Negate();
+            }
+        }
+
+        public static TelnetCommand AsNegative(this TelnetCommand command)
+        {
+            if (!command.IsPositive())
+            {
+                return command;
+            }
+            else
+            {
+                return command.Negate();
+            }
+        }
+
         public static TelnetCommand Reciprocal(this TelnetCommand command)
         {
-            switch(command)
+            switch (command)
             {
                 case TelnetCommand.WILL:
                     return TelnetCommand.DO;

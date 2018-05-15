@@ -3,6 +3,7 @@ using Keeper.MercuryCore.Pipeline;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,18 +12,19 @@ using System.Threading.Tasks.Dataflow;
 namespace Keeper.MercuryCore.Session.Internal
 {
     internal class TelnetChannel
-        : ITextChannel
+        : ITelnetChannel
     {
         private readonly ILogger<TelnetChannel> logger;
         private readonly Encoding encoding;
-
+        private readonly ITelnetOptionHandler optionHandler;
         private IConnection connection;
         private IPropagatorBlock<ArraySegment<byte>, string> lineAccumulator;
 
-        public TelnetChannel(ILogger<TelnetChannel> logger, Encoding encoding)
+        public TelnetChannel(ILogger<TelnetChannel> logger, Encoding encoding, ITelnetOptionHandler optionHandler = null)
         {
             this.logger = logger;
             this.encoding = encoding;
+            this.optionHandler = optionHandler ?? new DefaultTelnetOptionHandler();
         }
 
         public IDisposable Bind(IConnection connection)
@@ -31,15 +33,13 @@ namespace Keeper.MercuryCore.Session.Internal
 
             this.lineAccumulator = LineAccumulatorBlock.Create(logger, encoding, new Dictionary<byte, Func<Func<byte, bool>>>
             {
-                { (byte)0xff, this.IacHandler}
+                { (byte)0xff, this.HandleIac}
             });
 
             return this.connection.Receive.LinkTo(this.lineAccumulator);
         }
 
-
-
-        private Func<byte, bool> IacHandler()
+        private Func<byte, bool> HandleIac()
         {
             List<byte> bytes = null;
 
@@ -52,11 +52,38 @@ namespace Keeper.MercuryCore.Session.Internal
 
                 bytes.Add(datum);
 
-                if (bytes.Count == 2)
-                {
-                    TelnetOption option = (TelnetOption)bytes[1];
+                TelnetCommand command = (TelnetCommand)bytes[0];
 
-                    this.logger.LogDebug("Received IAC {TelnetCommand} {TelnetOption}", (TelnetCommand)bytes[0], option);
+                if (command.IsNegotiation())
+                {
+                    if (bytes.Count == 2)
+                    {
+                        TelnetOption option = (TelnetOption)bytes[1];
+
+                        this.logger.LogDebug("Received IAC {TelnetCommand} {TelnetOption}", command, option);
+
+                        this.optionHandler.Handle(command, option, this);
+
+                        return true;
+                    }
+                }
+                else if (command == TelnetCommand.SB)
+                {
+                    if ((TelnetCommand)bytes.Last() == TelnetCommand.SE && (TelnetCommand)bytes.SkipLast(1).Last() == TelnetCommand.IAC)
+                    {
+                        TelnetOption option = (TelnetOption)bytes[1];
+                        TelnetSubNegotiationCommand subCommand = (TelnetSubNegotiationCommand)bytes[2];
+
+                        var data = bytes.Skip(3).SkipLast(2);
+
+                        this.logger.LogDebug("Received IAC {TelnetCommand} {TelnetOption} {TelnetSubNegotiationCommand} {SubNegotationData} IAC SE", command, option, subCommand, data);
+
+                        return true;
+                    }
+                }
+                else
+                {
+                    this.logger.LogDebug("Received IAC {TelnetCommand}", command);
 
                     return true;
                 }
@@ -88,6 +115,15 @@ namespace Keeper.MercuryCore.Session.Internal
         public Task SendLineAsync(string message)
         {
             var data = this.encoding.GetBytes(message + "\r\n");
+
+            return this.connection.Send.SendAsync(new ArraySegment<byte>(data));
+        }
+
+        public Task SendCommandAsync(TelnetCommand command, TelnetOption option)
+        {
+            var data = new byte[] { 0xff, (byte)command, (byte)option };
+
+            this.logger.LogDebug("Sending IAC {TelnetCommand} {TelnetOption}", command, option);
 
             return this.connection.Send.SendAsync(new ArraySegment<byte>(data));
         }

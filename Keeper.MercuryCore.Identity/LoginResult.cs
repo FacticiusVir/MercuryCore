@@ -2,6 +2,8 @@
 {
     public struct AuthenticateResult
     {
+        public static AuthenticateResult Cancelled => new AuthenticateResult { Type = AuthenticateResultType.Cancelled };
+
         public static AuthenticateResult Failed => new AuthenticateResult { Type = AuthenticateResultType.Failed };
 
         public static AuthenticateResult Success(string username, bool isNewRegistration = false)

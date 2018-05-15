@@ -28,6 +28,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped(provider => ActivatorUtilities.CreateInstance<TelnetChannel>(provider, encoding ?? Encoding.ASCII));
             services.AddScoped<IChannel>(provider => provider.GetService<TelnetChannel>());
             services.AddScoped<ITextChannel>(provider => provider.GetService<TelnetChannel>());
+            services.AddScoped<ITelnetChannel>(provider => provider.GetService<TelnetChannel>());
 
             return services;
         }

@@ -32,10 +32,6 @@ namespace Keeper.MercuryCore.Internal
                             currentEscapeHandler = null;
                         }
                     }
-                    else if (datum == '\b')
-                    {
-                        receiveBuffer.Pop();
-                    }
                     else if (datum == '\n')
                     {
                         if (receiveBuffer.Peek() == '\r')
@@ -43,7 +39,26 @@ namespace Keeper.MercuryCore.Internal
                             receiveBuffer.Pop();
                         }
 
-                        var line = encoding.GetString(receiveBuffer.Reverse().ToArray());
+                        var lineData = new Stack<byte>();
+
+                        while (receiveBuffer.Any())
+                        {
+                            byte lineDatum = receiveBuffer.Pop();
+
+                            if (lineDatum == '\b')
+                            {
+                                if (receiveBuffer.Any())
+                                {
+                                    receiveBuffer.Pop();
+                                }
+                            }
+                            else
+                            {
+                                lineData.Push(lineDatum);
+                            }
+                        }
+
+                        var line = encoding.GetString(lineData.ToArray());
 
                         await output.SendAsync(line);
 

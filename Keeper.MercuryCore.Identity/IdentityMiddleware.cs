@@ -42,7 +42,14 @@ namespace Keeper.MercuryCore.Identity
                     }
                     else
                     {
-                        logger.LogWarning("Authenticate failed: {AuthenticateResult}", result.Type);
+                        if (result.Type == AuthenticateResultType.Cancelled)
+                        {
+                            logger.LogInformation("Authenticate cancelled.");
+                        }
+                        else
+                        {
+                            logger.LogWarning("Authenticate failed: {AuthenticateResult}", result.Type);
+                        }
 
                         await next();
                     }

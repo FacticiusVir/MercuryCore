@@ -29,7 +29,7 @@ namespace Keeper.MercuryCore.Session.Internal
 
             if (connection.Type == ConnectionType.Stream)
             {
-                this.lineAccumulator = LineAccumulatorBlock.Create(this.logger, this.textEncoding);
+                this.lineAccumulator = LineAccumulatorBlockOld.Create(this.logger, this.textEncoding);
             }
             else
             {

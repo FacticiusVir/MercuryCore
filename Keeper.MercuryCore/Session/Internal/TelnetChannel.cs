@@ -1,6 +1,7 @@
 ﻿using Keeper.MercuryCore.Internal;
 using Keeper.MercuryCore.Pipeline;
 using Microsoft.Extensions.Logging;
+using Nito.AsyncEx;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,87 +17,159 @@ namespace Keeper.MercuryCore.Session.Internal
     {
         private readonly ILogger<TelnetChannel> logger;
         private readonly Encoding encoding;
-        private readonly ITelnetOptionHandler optionHandler;
         private IConnection connection;
-        private IPropagatorBlock<ArraySegment<byte>, string> lineAccumulator;
 
-        public TelnetChannel(ILogger<TelnetChannel> logger, Encoding encoding, ITelnetOptionHandler optionHandler = null)
+        private readonly Stack<byte> lineModeBuffer = new Stack<byte>();
+        private readonly BufferBlock<string> lineOutput = new BufferBlock<string>();
+        private readonly BufferBlock<(TelnetCommand, TelnetOption)> negotiationOutput = new BufferBlock<(TelnetCommand, TelnetOption)>();
+        private readonly BufferBlock<(TelnetCommand, IReceivableSourceBlock<byte>)> subnegotiationOutput = new BufferBlock<(TelnetCommand, IReceivableSourceBlock<byte>)>();
+        private readonly BufferBlock<char> characterOutput = new BufferBlock<char>();
+        private readonly AsyncLock accumulateLock = new AsyncLock();
+
+        private ReceiveState receiveState = ReceiveState.Character;
+        private TelnetCommand receivedCommand;
+
+        private enum ReceiveState
+        {
+            Character,
+            Escaped,
+            Negotiation,
+            SbInitial,
+            SbData,
+            SbEscaped
+        }
+
+        public TelnetChannel(ILogger<TelnetChannel> logger, Encoding encoding)
         {
             this.logger = logger;
             this.encoding = encoding;
-            this.optionHandler = optionHandler ?? new DefaultTelnetOptionHandler();
         }
 
         public IDisposable Bind(IConnection connection)
         {
             this.connection = connection;
 
-            this.lineAccumulator = LineAccumulatorBlock.Create(logger, encoding, new Dictionary<byte, Func<Func<byte, bool>>>
-            {
-                { (byte)0xff, this.HandleIac}
-            });
-
-            return this.connection.Receive.LinkTo(this.lineAccumulator);
+            return this.connection.Receive.LinkTo(new ActionBlock<ArraySegment<byte>>(HandleData));
         }
 
-        private Func<byte, bool> HandleIac()
+        private async Task HandleData(ArraySegment<byte> data)
         {
-            List<byte> bytes = null;
+            this.logger.LogDebug("Received {ByteCount} bytes.", data.Count);
+            this.logger.LogTrace("Received {Payload}", data);
 
-            return datum =>
+            var linesToSend = new List<string>();
+
+            using(await this.accumulateLock.LockAsync())
             {
-                if (bytes == null)
+                for (int index = data.Offset; index + data.Offset < data.Count; index++)
                 {
-                    bytes = new List<byte>();
-                }
+                    byte datum = data.Array[index];
 
-                bytes.Add(datum);
-
-                TelnetCommand command = (TelnetCommand)bytes[0];
-
-                if (command.IsNegotiation())
-                {
-                    if (bytes.Count == 2)
+                    switch (this.receiveState)
                     {
-                        TelnetOption option = (TelnetOption)bytes[1];
+                        case ReceiveState.Character:
+                            if (datum == '\n')
+                            {
+                                if (this.lineModeBuffer.Peek() == '\r')
+                                {
+                                    this.lineModeBuffer.Pop();
+                                }
 
-                        this.logger.LogDebug("Received IAC {TelnetCommand} {TelnetOption}", command, option);
+                                var lineData = new Stack<byte>();
 
-                        this.optionHandler.Handle(command, option, this);
+                                while (this.lineModeBuffer.Any())
+                                {
+                                    byte lineDatum = this.lineModeBuffer.Pop();
 
-                        return true;
+                                    if (lineDatum == '\b')
+                                    {
+                                        if (this.lineModeBuffer.Any())
+                                        {
+                                            this.lineModeBuffer.Pop();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        lineData.Push(lineDatum);
+                                    }
+                                }
+                                
+                                await this.lineOutput.SendAsync(encoding.GetString(lineData.ToArray()));
+
+                                this.lineModeBuffer.Clear();
+                            }
+                            else if ((TelnetCommand)datum == TelnetCommand.IAC)
+                            {
+                                this.receiveState = ReceiveState.Escaped;
+                            }
+                            else
+                            {
+                                this.lineModeBuffer.Push(datum);
+                            }
+                            break;
+                        case ReceiveState.Escaped:
+                            TelnetCommand command = (TelnetCommand)datum;
+
+                            switch (command)
+                            {
+                                case TelnetCommand.DO:
+                                case TelnetCommand.DONT:
+                                case TelnetCommand.WILL:
+                                case TelnetCommand.WONT:
+                                    this.receiveState = ReceiveState.Negotiation;
+                                    this.receivedCommand = command;
+                                    break;
+                                case TelnetCommand.IAC:
+                                    this.receiveState = ReceiveState.Character;
+                                    this.lineModeBuffer.Push(0xff);
+                                    break;
+                                case TelnetCommand.SB:
+                                    this.receiveState = ReceiveState.SbInitial;
+                                    break;
+                                default:
+                                    this.receiveState = ReceiveState.Character;
+                                    break;
+
+                            }
+                            break;
+                        case ReceiveState.Negotiation:
+                            await this.negotiationOutput.SendAsync((this.receivedCommand, (TelnetOption)datum));
+                            this.receiveState = ReceiveState.Character;
+                            break;
                     }
+
                 }
-                else if (command == TelnetCommand.SB)
-                {
-                    if ((TelnetCommand)bytes.Last() == TelnetCommand.SE && (TelnetCommand)bytes.SkipLast(1).Last() == TelnetCommand.IAC)
-                    {
-                        TelnetOption option = (TelnetOption)bytes[1];
-                        TelnetSubNegotiationCommand subCommand = (TelnetSubNegotiationCommand)bytes[2];
+            }
 
-                        var data = bytes.Skip(3).SkipLast(2);
+            foreach (var line in linesToSend)
+            {
+                await this.lineOutput.SendAsync(line);
+            }
+        }
 
-                        this.logger.LogDebug("Received IAC {TelnetCommand} {TelnetOption} {TelnetSubNegotiationCommand} {SubNegotationData} IAC SE", command, option, subCommand, data);
+        public IReceivableSourceBlock<(TelnetCommand, TelnetOption)> Negotiation
+        {
+            get;
+            private set;
+        }
 
-                        return true;
-                    }
-                }
-                else
-                {
-                    this.logger.LogDebug("Received IAC {TelnetCommand}", command);
+        public IReceivableSourceBlock<(TelnetCommand, ArraySegment<byte>)> SubNegotiation
+        {
+            get;
+            private set;
+        }
 
-                    return true;
-                }
-
-                return false;
-            };
+        public IReceivableSourceBlock<char> ReceiveCharacter
+        {
+            get;
+            private set;
         }
 
         public async Task<string> ReceiveLineAsync()
         {
             var tokenSource = new CancellationTokenSource();
 
-            var receiveTask = this.lineAccumulator.ReceiveAsync(tokenSource.Token);
+            var receiveTask = this.lineOutput.ReceiveAsync(tokenSource.Token);
 
             await Task.WhenAny(this.connection.Closed, receiveTask);
 
@@ -112,20 +185,40 @@ namespace Keeper.MercuryCore.Session.Internal
             }
         }
 
-        public Task SendLineAsync(string message)
+        public async Task SendLineAsync(string message)
         {
             var data = this.encoding.GetBytes(message + "\r\n");
 
-            return this.connection.Send.SendAsync(new ArraySegment<byte>(data));
+            await this.SendData(data);
         }
 
-        public Task SendCommandAsync(TelnetCommand command, TelnetOption option)
+        public async Task SendCommandAsync(TelnetCommand command, TelnetOption option)
         {
             var data = new byte[] { 0xff, (byte)command, (byte)option };
 
             this.logger.LogDebug("Sending IAC {TelnetCommand} {TelnetOption}", command, option);
 
-            return this.connection.Send.SendAsync(new ArraySegment<byte>(data));
+            await SendData(data);
+        }
+
+        public async Task SendSubCommandAsync(TelnetOption option, byte[] subData)
+        {
+            var data = new byte[] { 0xff, (byte)TelnetCommand.SB, (byte)option }.Concat(subData).Concat(new byte[] { 0xff, (byte)TelnetCommand.SE }).ToArray();
+
+            this.logger.LogDebug("Sending IAC {TelnetCommand} {TelnetOption}", TelnetCommand.SB, option);
+
+            await SendData(data);
+        }
+
+        private async Task SendData(byte[] data)
+        {
+            this.logger.LogDebug("Sending {ByteCount} bytes.", data.Length);
+
+            var payload = new ArraySegment<byte>(data);
+
+            this.logger.LogTrace("Sending {Payload}", payload);
+
+            await this.connection.Send.SendAsync(payload);
         }
     }
 }

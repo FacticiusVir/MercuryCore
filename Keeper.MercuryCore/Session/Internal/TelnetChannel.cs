@@ -93,8 +93,11 @@ namespace Keeper.MercuryCore.Session.Internal
                                         lineData.Push(lineDatum);
                                     }
                                 }
-                                
-                                await this.lineOutput.SendAsync(encoding.GetString(lineData.ToArray()));
+
+                                var line = encoding.GetString(lineData.ToArray());
+
+                                this.logger.LogTrace("Received line {Line}", line);
+                                await this.lineOutput.SendAsync(line);
 
                                 this.lineModeBuffer.Clear();
                             }

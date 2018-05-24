@@ -11,7 +11,7 @@ namespace Keeper.MercuryCore.Session
 
         IReceivableSourceBlock<(TelnetCommand, TelnetOption)> Negotiation { get; }
 
-        IReceivableSourceBlock<(TelnetCommand, IReceivableSourceBlock<byte>)> SubNegotiation { get; }
+        IReceivableSourceBlock<(TelnetOption, IReceivableSourceBlock<byte>)> SubNegotiation { get; }
 
         IReceivableSourceBlock<char> ReceiveCharacter { get; }
     }

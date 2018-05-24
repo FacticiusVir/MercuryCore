@@ -22,7 +22,7 @@ namespace Keeper.MercuryCore.Session.Internal
         private readonly Stack<byte> lineModeBuffer = new Stack<byte>();
         private readonly BufferBlock<string> lineOutput = new BufferBlock<string>();
         private readonly BufferBlock<(TelnetCommand, TelnetOption)> negotiationOutput = new BufferBlock<(TelnetCommand, TelnetOption)>();
-        private readonly BufferBlock<(TelnetCommand, IReceivableSourceBlock<byte>)> subnegotiationOutput = new BufferBlock<(TelnetCommand, IReceivableSourceBlock<byte>)>();
+        private readonly BufferBlock<(TelnetOption, IReceivableSourceBlock<byte>)> subnegotiationOutput = new BufferBlock<(TelnetOption, IReceivableSourceBlock<byte>)>();
         private readonly BufferBlock<char> characterOutput = new BufferBlock<char>();
         private readonly AsyncLock accumulateLock = new AsyncLock();
 
@@ -57,7 +57,6 @@ namespace Keeper.MercuryCore.Session.Internal
         {
             this.logger.LogDebug("Received {ByteCount} bytes.", data.Count);
             this.logger.LogTrace("Received {Payload}", data);
-            this.logger.LogTrace("Receive State {ReceiveState}", this.receiveState);
 
             using (await this.accumulateLock.LockAsync())
             {
@@ -143,7 +142,7 @@ namespace Keeper.MercuryCore.Session.Internal
                         case ReceiveState.SbInitial:
                             this.receiveState = ReceiveState.SbData;
                             this.sbDataBuffer = new BufferBlock<byte>();
-                            await this.subnegotiationOutput.SendAsync(((TelnetCommand)datum, this.sbDataBuffer));
+                            await this.subnegotiationOutput.SendAsync(((TelnetOption)datum, this.sbDataBuffer));
                             break;
                         case ReceiveState.SbData:
                             if ((TelnetCommand)datum == TelnetCommand.IAC)
@@ -181,7 +180,7 @@ namespace Keeper.MercuryCore.Session.Internal
 
         public IReceivableSourceBlock<(TelnetCommand, TelnetOption)> Negotiation => this.negotiationOutput;
 
-        public IReceivableSourceBlock<(TelnetCommand, IReceivableSourceBlock<byte>)> SubNegotiation => this.subnegotiationOutput;
+        public IReceivableSourceBlock<(TelnetOption, IReceivableSourceBlock<byte>)> SubNegotiation => this.subnegotiationOutput;
 
         public IReceivableSourceBlock<char> ReceiveCharacter => this.characterOutput;
 

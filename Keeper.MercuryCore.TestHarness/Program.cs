@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
@@ -42,36 +43,22 @@ namespace Keeper.MercuryCore.TestHarness
 
             channel.Negotiation.LinkTo(new ActionBlock<(TelnetCommand Command, TelnetOption Option)>(async negotiation =>
             {
-                if (negotiation.Command == TelnetCommand.WILL)
+                if (negotiation.Command == TelnetCommand.DO)
                 {
-                    await channel.SendCommandAsync(TelnetCommand.DO, negotiation.Option);
-                }
-                else if (negotiation.Command == TelnetCommand.DO)
-                {
-                    //if (negotiation.Option == TelnetOption.SuppressGoAhead)
-                    //{
-                    //    channel.SendCommandAsync(TelnetCommand.WILL, negotiation.Option);
-                    //}
-                    //else
-                    //{
                     await channel.SendCommandAsync(TelnetCommand.WONT, negotiation.Option);
-                    //}
                 }
             }));
 
-            channel.SubNegotiation.LinkTo(new ActionBlock<(TelnetCommand Command, IReceivableSourceBlock<byte> Data)>(async subNegotiation =>
+            channel.SubNegotiation.LinkTo(new ActionBlock<(TelnetOption Option, IReceivableSourceBlock<byte> Data)>(subNegotiation =>
             {
-                var data = new List<byte>();
+                subNegotiation.Data.TryReceiveAll(out var data);
 
-                while (!subNegotiation.Data.Completion.IsCompleted)
-                {
-                    data.Add(await subNegotiation.Data.ReceiveAsync());
-                }
-
-                Console.WriteLine($"SubNegotiation {subNegotiation.Command} {string.Join(", ", data.Select(x => x.ToString("x2")))}");
+                Console.WriteLine($"SubNegotiation {subNegotiation.Option} {(TelnetSubNegotiationCommand)data[0]} {string.Join(", ", data.Skip(1).Select(x => x.ToString("x2")))}");
             }));
 
-            while (await channel.ReceiveLineAsync() != "quit") await channel.SendLineAsync("Enter 'quit' to disconnect");
+            await channel.SendLineAsync("Enter 'quit' to disconnect");
+
+            while (await channel.ReceiveLineAsync() != "quit") ;
         }
     }
 }

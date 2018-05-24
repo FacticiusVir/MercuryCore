@@ -28,6 +28,7 @@ namespace Keeper.MercuryCore.Session.Internal
 
         private ReceiveState receiveState = ReceiveState.Character;
         private TelnetCommand receivedCommand;
+        private BufferBlock<byte> sbDataBuffer;
 
         private enum ReceiveState
         {
@@ -56,10 +57,9 @@ namespace Keeper.MercuryCore.Session.Internal
         {
             this.logger.LogDebug("Received {ByteCount} bytes.", data.Count);
             this.logger.LogTrace("Received {Payload}", data);
+            this.logger.LogTrace("Receive State {ReceiveState}", this.receiveState);
 
-            var linesToSend = new List<string>();
-
-            using(await this.accumulateLock.LockAsync())
+            using (await this.accumulateLock.LockAsync())
             {
                 for (int index = data.Offset; index + data.Offset < data.Count; index++)
                 {
@@ -136,37 +136,54 @@ namespace Keeper.MercuryCore.Session.Internal
                             }
                             break;
                         case ReceiveState.Negotiation:
+                            this.logger.LogDebug("Received IAC {TelnetCommand} {TelnetOption}", this.receivedCommand, (TelnetOption)datum);
                             await this.negotiationOutput.SendAsync((this.receivedCommand, (TelnetOption)datum));
                             this.receiveState = ReceiveState.Character;
                             break;
+                        case ReceiveState.SbInitial:
+                            this.receiveState = ReceiveState.SbData;
+                            this.sbDataBuffer = new BufferBlock<byte>();
+                            await this.subnegotiationOutput.SendAsync(((TelnetCommand)datum, this.sbDataBuffer));
+                            break;
+                        case ReceiveState.SbData:
+                            if ((TelnetCommand)datum == TelnetCommand.IAC)
+                            {
+                                this.receiveState = ReceiveState.SbEscaped;
+                            }
+                            else
+                            {
+                                await this.sbDataBuffer.SendAsync(datum);
+                            }
+                            break;
+                        case ReceiveState.SbEscaped:
+                            if ((TelnetCommand)datum == TelnetCommand.IAC)
+                            {
+                                await this.sbDataBuffer.SendAsync((byte)0xff);
+                                this.receiveState = ReceiveState.SbData;
+                            }
+                            else
+                            {
+                                this.sbDataBuffer.Complete();
+                                this.sbDataBuffer = null;
+
+                                this.receiveState = ReceiveState.Character;
+                            }
+                            break;
+                        default:
+                            this.connection.Close();
+                            this.logger.LogError("Current receive state {ReceiveState} is not implemented.", this.receiveState);
+                            return;
                     }
 
                 }
             }
-
-            foreach (var line in linesToSend)
-            {
-                await this.lineOutput.SendAsync(line);
-            }
         }
 
-        public IReceivableSourceBlock<(TelnetCommand, TelnetOption)> Negotiation
-        {
-            get;
-            private set;
-        }
+        public IReceivableSourceBlock<(TelnetCommand, TelnetOption)> Negotiation => this.negotiationOutput;
 
-        public IReceivableSourceBlock<(TelnetCommand, ArraySegment<byte>)> SubNegotiation
-        {
-            get;
-            private set;
-        }
+        public IReceivableSourceBlock<(TelnetCommand, IReceivableSourceBlock<byte>)> SubNegotiation => this.subnegotiationOutput;
 
-        public IReceivableSourceBlock<char> ReceiveCharacter
-        {
-            get;
-            private set;
-        }
+        public IReceivableSourceBlock<char> ReceiveCharacter => this.characterOutput;
 
         public async Task<string> ReceiveLineAsync()
         {

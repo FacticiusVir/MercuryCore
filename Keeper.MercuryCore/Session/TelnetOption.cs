@@ -62,6 +62,8 @@
         TeloptPragmaLogon = 138,
         TeloptSspiLogon = 139,
         TeloptPragmaHeartbeat = 140,
+        MtgpComms = 170,
+        TestSuite = 192,
         Atcp = 200,
         Gmcp = 201,
         ExtendedOptionsList = 255

@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 
 namespace Keeper.MercuryCore.Session
 {
@@ -6,5 +8,11 @@ namespace Keeper.MercuryCore.Session
         : ITextChannel
     {
         Task SendCommandAsync(TelnetCommand command, TelnetOption option);
+
+        IReceivableSourceBlock<(TelnetCommand, TelnetOption)> Negotiation { get; }
+
+        IReceivableSourceBlock<(TelnetCommand, IReceivableSourceBlock<byte>)> SubNegotiation { get; }
+
+        IReceivableSourceBlock<char> ReceiveCharacter { get; }
     }
 }

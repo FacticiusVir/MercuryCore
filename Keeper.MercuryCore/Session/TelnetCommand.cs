@@ -85,6 +85,18 @@
             }
         }
 
+        public static bool IsImperative(this TelnetCommand command)
+        {
+            switch (command)
+            {
+                case TelnetCommand.DO:
+                case TelnetCommand.DONT:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         public static bool IsPositive(this TelnetCommand command)
         {
             switch (command)

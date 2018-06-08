@@ -9,9 +9,9 @@ namespace Keeper.MercuryCore.Session
     {
         Task SendCommandAsync(TelnetCommand command, TelnetOption option);
 
-        IReceivableSourceBlock<(TelnetCommand, TelnetOption)> Negotiation { get; }
+        IReceivableSourceBlock<(TelnetCommand Command, TelnetOption Option)> Negotiation { get; }
 
-        IReceivableSourceBlock<(TelnetOption, IReceivableSourceBlock<byte>)> SubNegotiation { get; }
+        IReceivableSourceBlock<(TelnetOption Option, IReceivableSourceBlock<byte> Data)> SubNegotiation { get; }
 
         IReceivableSourceBlock<char> ReceiveCharacter { get; }
     }

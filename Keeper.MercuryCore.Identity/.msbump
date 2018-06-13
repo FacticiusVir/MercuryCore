@@ -1,0 +1,8 @@
+{
+	Configurations: {
+		"Debug": {
+			BumpLabel: "dev",
+			LabelDigits: 4
+		}
+	}
+}

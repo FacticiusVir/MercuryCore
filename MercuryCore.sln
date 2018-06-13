@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Keeper.MercuryCore.Identity
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Keeper.MercuryCore.CommandLoop", "Keeper.MercuryCore.CommandLoop\Keeper.MercuryCore.CommandLoop.csproj", "{4B5EFF4F-3C34-403C-B528-D49411905ACB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keeper.MercuryCore.WebSockets", "Keeper.MercuryCore.WebSockets\Keeper.MercuryCore.WebSockets.csproj", "{D7B418F5-2A09-4208-BAE0-DC12D59D303E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Keeper.MercuryCore.WebSockets", "Keeper.MercuryCore.WebSockets\Keeper.MercuryCore.WebSockets.csproj", "{D7B418F5-2A09-4208-BAE0-DC12D59D303E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

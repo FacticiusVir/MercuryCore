@@ -11,6 +11,7 @@
     <Description>WebSockets Endpoint extension for the Mercury Core MUD framework</Description>
     <Copyright>Copyright 2017 Andrew Armstrong/FacticiusVir</Copyright>
     <PackageProjectUrl>https://github.com/FacticiusVir/MercuryCore</PackageProjectUrl>
+    <Configurations>Debug;Release;CI</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

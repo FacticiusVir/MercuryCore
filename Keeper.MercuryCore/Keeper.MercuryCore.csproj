@@ -11,6 +11,7 @@
     <Copyright>Copyright 2017 Andrew Armstrong/FacticiusVir</Copyright>
     <PackageProjectUrl>https://github.com/FacticiusVir/MercuryCore</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Configurations>Debug;Release;CI</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

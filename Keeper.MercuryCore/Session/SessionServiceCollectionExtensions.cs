@@ -23,11 +23,19 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        public static IServiceCollection<IPipeline> UseTelnetChannel(this IServiceCollection<IPipeline> services, Encoding encoding = null)
+        public static IServiceCollection<IPipeline> UseVirtualTerminalChannel(this IServiceCollection<IPipeline> services)
         {
-            services.AddScoped(provider => ActivatorUtilities.CreateInstance<TelnetChannel>(provider, encoding ?? Encoding.ASCII));
+            services.AddScoped<VirtualTerminalChannel>();
+            services.AddScoped<IChannel>(provider => provider.GetService<VirtualTerminalChannel>());
+            services.AddScoped<IVirtualTerminalChannel>(provider => provider.GetService<VirtualTerminalChannel>());
+
+            return services;
+        }
+
+        public static IServiceCollection<IPipeline> UseTelnetChannel(this IServiceCollection<IPipeline> services)
+        {
+            services.AddScoped(provider => ActivatorUtilities.CreateInstance<TelnetChannel>(provider));
             services.AddScoped<IChannel>(provider => provider.GetService<TelnetChannel>());
-            services.AddScoped<ITextChannel>(provider => provider.GetService<TelnetChannel>());
             services.AddScoped<ITelnetChannel>(provider => provider.GetService<TelnetChannel>());
 
             return services;

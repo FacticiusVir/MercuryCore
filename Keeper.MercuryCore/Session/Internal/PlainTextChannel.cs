@@ -6,73 +6,78 @@ using System.Threading.Tasks.Dataflow;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace Keeper.MercuryCore.Session.Internal
 {
     internal class PlainTextChannel
-        : ITextChannel
+        : ITextChannel, IChannel
     {
         private readonly ILogger<PlainTextChannel> logger;
         private readonly Encoding textEncoding;
-        private IConnection connection;
-        private IPropagatorBlock<ArraySegment<byte>, string> lineAccumulator;
+        private readonly IPropagatorBlock<ArraySegment<byte>, string> lineAccumulator;
+        private Func<ArraySegment<byte>, Task> send;
 
         public PlainTextChannel(ILogger<PlainTextChannel> logger, Encoding textEncoding)
         {
             this.logger = logger;
             this.textEncoding = textEncoding;
+
+            var encodingBuffer = new BufferBlock<string>();
+            var characterBuffer = new Queue<char>();
+
+            var encodingAction = new ActionBlock<ArraySegment<byte>>(async data =>
+            {
+                var chars = this.textEncoding.GetChars(data.Array, data.Offset, data.Count);
+
+                foreach (char character in chars)
+                {
+                    if (character == '\n')
+                    {
+                        var line = new string(characterBuffer.ToArray());
+
+                        this.logger.LogTrace("Received line {Line}", line);
+
+                        await encodingBuffer.SendAsync(line);
+
+                        characterBuffer.Clear();
+                    }
+                    else if (character == '\r')
+                    {
+                        //Ignore
+                    }
+                    else
+                    {
+                        characterBuffer.Enqueue(character);
+                    }
+                }
+            });
+
+            this.lineAccumulator = DataflowBlock.Encapsulate(encodingAction, encodingBuffer);
         }
 
-        public IDisposable Bind(IConnection connection)
+        public Func<ArraySegment<byte>, Task> Bind(Func<ArraySegment<byte>, Task> send)
         {
-            this.connection = connection;
+            this.send = send;
 
-            if (connection.Type == ConnectionType.Stream)
-            {
-                this.lineAccumulator = LineAccumulatorBlockOld.Create(this.logger, this.textEncoding);
-            }
-            else
-            {
-                var encodingBuffer = new BufferBlock<string>();
+            return send;
+        }
 
-                var encodingAction = new ActionBlock<ArraySegment<byte>>(async data =>
-                {
-                    string value = this.textEncoding.GetString(data.Array, data.Offset, data.Count);
-
-                    await encodingBuffer.SendAsync(value);
-                });
-
-                this.lineAccumulator = DataflowBlock.Encapsulate(encodingAction, encodingBuffer);
-            }
-
-            return this.connection.Receive.LinkTo(this.lineAccumulator);
+        public void Handle(byte datum, Action<byte> next)
+        {
+            this.lineAccumulator.Post(new ArraySegment<byte>(new[] { datum }));
         }
 
         public async Task<string> ReceiveLineAsync()
         {
-            var tokenSource = new CancellationTokenSource();
-
-            var receiveTask = this.lineAccumulator.ReceiveAsync(tokenSource.Token);
-
-            await Task.WhenAny(this.connection.Closed, receiveTask);
-
-            if (this.connection.Closed.IsCompleted)
-            {
-                tokenSource.Cancel();
-
-                throw new ClientDisconnectedException();
-            }
-            else
-            {
-                return await receiveTask;
-            }
+            return await this.lineAccumulator.ReceiveAsync();
         }
 
         public Task SendLineAsync(string message)
         {
-            var data = Encoding.ASCII.GetBytes(message + "\r\n");
+            var data = this.textEncoding.GetBytes(message + "\r\n");
 
-            return this.connection.Send.SendAsync(new ArraySegment<byte>(data));
+            return send(new ArraySegment<byte>(data));
         }
     }
 }

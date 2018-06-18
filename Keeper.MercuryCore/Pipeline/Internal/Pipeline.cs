@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 
 namespace Keeper.MercuryCore.Pipeline.Internal
 {
@@ -52,29 +53,40 @@ namespace Keeper.MercuryCore.Pipeline.Internal
 
                     var sessionServiceProvider = sessionServices.BuildServiceProvider();
 
-                    var channel = sessionServiceProvider.GetService<IChannel>();
-                    var textChannel = sessionServiceProvider.GetService<ITextChannel>();
+                    var channels = sessionServiceProvider.GetServices<IChannel>();
 
-                    if (channel == null)
+                    Action<byte> stack = x => { };
+
+                    Func<ArraySegment<byte>, Task> send = connection.Send.SendAsync;
+
+                    foreach (var channel in channels.Reverse())
                     {
-                        this.logger.LogError("No channel configured for pipeline {PipelineId}.");
-                        return;
+                        var stackTemp = stack;
+
+                        stack = datum => channel.Handle(datum, stackTemp);
                     }
 
-                    channel.Bind(connection);
-
-                    Func<Task> pipeline = async () =>
+                    foreach(var channel in channels)
                     {
-                        if (textChannel != null)
+                        send = channel.Bind(send);
+                    }
+
+                    connection.Receive.LinkTo(new ActionBlock<ArraySegment<byte>>(data =>
+                    {
+                        foreach (var datum in data)
                         {
-                            await textChannel.ReceiveLineAsync();
+                            stack(datum);
                         }
-                    };
+                    }));
+
+                    Func<Task> pipeline = () => Task.CompletedTask;
 
                     foreach (var middleware in this.middlewares.Reverse())
                     {
                         pipeline = middleware.BuildHandler(sessionServiceProvider, pipeline);
                     }
+
+                    logger.LogDebug("Pipeline {PipelineId} built; starting.");
 
                     await pipeline();
                 }

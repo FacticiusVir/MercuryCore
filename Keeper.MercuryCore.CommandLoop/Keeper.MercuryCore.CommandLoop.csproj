@@ -9,7 +9,7 @@
     <Product>MercuryCore</Product>
     <Copyright>Copyright 2017 Andrew Armstrong/FacticiusVir</Copyright>
     <PackageProjectUrl>https://github.com/FacticiusVir/MercuryCore</PackageProjectUrl>
-    <Version>0.1.0-dev0001</Version>
+    <Version>0.1.0-dev0016</Version>
     <Configurations>Debug;Release;CI</Configurations>
   </PropertyGroup>
 

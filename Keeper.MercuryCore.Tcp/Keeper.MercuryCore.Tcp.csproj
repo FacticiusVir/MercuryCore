@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <Version>0.1.0-dev0001</Version>
+    <Version>0.1.0-dev0017</Version>
     <Description>TCP Endpoint extension for the Mercury Core MUD framework</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>FacticiusVir</Authors>

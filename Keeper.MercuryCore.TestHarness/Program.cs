@@ -25,8 +25,10 @@ namespace Keeper.MercuryCore.TestHarness
                                                                     .MinimumLevel.Verbose())
                                     .ConfigurePipeline(pipeline =>
                                     {
-                                        pipeline.AddTcpEndpoint("tcp", options => options.Port = 1234);
-                                        pipeline.UseTelnetChannel(Encoding.UTF8);
+                                        pipeline.AddTcpEndpoint("tcp", options => options.Port = 5000);
+                                        pipeline.UseTelnetChannel();
+                                        pipeline.UseVirtualTerminalChannel();
+                                        pipeline.UseUtf8Channel();
 
                                         pipeline.Use((provider, next) => () => Run(provider));
                                     })
@@ -37,28 +39,19 @@ namespace Keeper.MercuryCore.TestHarness
 
         private static async Task Run(IServiceProvider provider)
         {
-            var channel = provider.GetRequiredService<ITelnetChannel>();
+            var channel = provider.GetRequiredService<ITextChannel>();
+            var virtualTerminal = provider.GetRequiredService<IVirtualTerminalChannel>();
 
             await channel.SendLineAsync("Sandbox");
 
-            channel.Negotiation.LinkTo(new ActionBlock<(TelnetCommand Command, TelnetOption Option)>(async negotiation =>
-            {
-                if (negotiation.Command == TelnetCommand.DO)
-                {
-                    await channel.SendCommandAsync(TelnetCommand.WONT, negotiation.Option);
-                }
-            }));
-
-            channel.SubNegotiation.LinkTo(new ActionBlock<(TelnetOption Option, IReceivableSourceBlock<byte> Data)>(subNegotiation =>
-            {
-                subNegotiation.Data.TryReceiveAll(out var data);
-
-                Console.WriteLine($"SubNegotiation {subNegotiation.Option} {(TelnetSubNegotiationCommand)data[0]} {string.Join(", ", data.Skip(1).Select(x => x.ToString("x2")))}");
-            }));
-
             await channel.SendLineAsync("Enter 'quit' to disconnect");
 
-            while (await channel.ReceiveLineAsync() != "quit") ;
+            string line = null;
+
+            while (line != "quit")
+            {
+                line = await channel.ReceiveLineAsync();
+            }
         }
     }
 }

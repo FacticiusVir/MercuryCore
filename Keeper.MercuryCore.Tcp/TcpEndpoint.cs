@@ -82,7 +82,7 @@ namespace Keeper.MercuryCore.Tcp
                 try
                 {
                     var client = await this.listener.AcceptTcpClientAsync();
-
+                    
                     this.BeginAccept();
 
                     newConnection = new TcpConnection(this.Name, client, this.serverCertificate);

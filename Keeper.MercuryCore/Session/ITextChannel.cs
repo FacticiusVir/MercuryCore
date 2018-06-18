@@ -3,7 +3,6 @@
 namespace Keeper.MercuryCore.Session
 {
     public interface ITextChannel
-        : IChannel
     {
         Task SendLineAsync(string message);
 

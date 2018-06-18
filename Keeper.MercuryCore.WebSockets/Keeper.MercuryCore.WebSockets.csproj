@@ -4,7 +4,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.1.0-dev0016</Version>
+    <Version>0.1.0-dev0019</Version>
     <Authors>FacticiusVir</Authors>
     <Company>FacticiusVir</Company>
     <Product>MercuryCore</Product>

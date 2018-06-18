@@ -56,14 +56,17 @@ namespace Keeper.MercuryCore.Pipeline.Internal
                     var channels = sessionServiceProvider.GetServices<IChannel>();
 
                     Action<byte> stack = x => { };
+                    Action<SignalType> signalStack = x => { };
 
                     Func<ArraySegment<byte>, Task> send = connection.Send.SendAsync;
 
                     foreach (var channel in channels.Reverse())
                     {
                         var stackTemp = stack;
+                        var signalTemp = signalStack;
 
-                        stack = datum => channel.Handle(datum, stackTemp);
+                        stack = datum => channel.Handle(datum, stackTemp, signalTemp);
+                        signalStack = signal => channel.Signal(signal, signalTemp);
                     }
 
                     foreach(var channel in channels)
@@ -77,6 +80,8 @@ namespace Keeper.MercuryCore.Pipeline.Internal
                         {
                             stack(datum);
                         }
+
+                        signalStack(SignalType.EndOfFrame);
                     }));
 
                     Func<Task> pipeline = () => Task.CompletedTask;
@@ -89,6 +94,8 @@ namespace Keeper.MercuryCore.Pipeline.Internal
                     logger.LogDebug("Pipeline {PipelineId} built; starting.");
 
                     await pipeline();
+
+                    signalStack(SignalType.ConnectionClosed);
                 }
                 catch (ClientDisconnectedException)
                 {

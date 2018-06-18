@@ -40,7 +40,7 @@ namespace Keeper.MercuryCore.Session.Internal
             this.logger = logger;
         }
 
-        public void Handle(byte datum, Action<byte> next)
+        public void Handle(byte datum, Action<byte> nextHandle, Action<SignalType> nextSignal)
         {
             switch (this.receiveState)
             {
@@ -51,7 +51,7 @@ namespace Keeper.MercuryCore.Session.Internal
                     }
                     else
                     {
-                        next(datum);
+                        nextHandle(datum);
                     }
                     break;
                 case ReceiveState.Escaped:
@@ -68,7 +68,7 @@ namespace Keeper.MercuryCore.Session.Internal
                             break;
                         case TelnetCommand.IAC:
                             this.receiveState = ReceiveState.Character;
-                            next(0xff);
+                            nextHandle(0xff);
                             break;
                         case TelnetCommand.SB:
                             this.receiveState = ReceiveState.SbInitial;
@@ -148,6 +148,11 @@ namespace Keeper.MercuryCore.Session.Internal
             this.send = send;
 
             return send;
+        }
+
+        public void Signal(SignalType type, Action<SignalType> next)
+        {
+            next(type);
         }
     }
 }

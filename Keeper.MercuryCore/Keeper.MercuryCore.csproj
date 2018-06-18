@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <Version>0.1.0-dev0018</Version>
+    <Version>0.1.0-dev0022</Version>
     <Authors>FacticiusVir</Authors>
     <Company />
     <Product>MercuryCore</Product>

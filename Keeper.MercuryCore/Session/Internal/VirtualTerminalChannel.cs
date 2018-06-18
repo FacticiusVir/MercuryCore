@@ -10,21 +10,12 @@ namespace Keeper.MercuryCore.Session.Internal
     {
         private Func<ArraySegment<byte>, Task> send;
 
-        public Func<ArraySegment<byte>, Task> Bind(Func<ArraySegment<byte>, Task> send)
-        {
-            this.send = send;
+        public Func<ArraySegment<byte>, Task> Bind(Func<ArraySegment<byte>, Task> send) => this.send = send;
 
-            return send;
-        }
+        public void Handle(byte datum, Action<byte> nextHandle, Action<SignalType> nextSignal) => nextHandle(datum);
 
-        public void Handle(byte datum, Action<byte> next)
-        {
-            next(datum);
-        }
+        public async Task SendEscapeSequenceAsync(string sequence) => await send(Encoding.ASCII.GetBytes((char)0x1b + sequence));
 
-        public async Task SendEscapeSequenceAsync(string sequence)
-        {
-            await send(Encoding.ASCII.GetBytes((char)0x1b + sequence));
-        }
+        public void Signal(SignalType type, Action<SignalType> next) => next(type);
     }
 }

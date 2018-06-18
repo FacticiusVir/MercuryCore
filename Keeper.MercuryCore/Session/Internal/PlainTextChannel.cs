@@ -63,7 +63,7 @@ namespace Keeper.MercuryCore.Session.Internal
             return send;
         }
 
-        public void Handle(byte datum, Action<byte> next)
+        public void Handle(byte datum, Action<byte> nextHandle, Action<SignalType> nextSignal)
         {
             this.lineAccumulator.Post(new ArraySegment<byte>(new[] { datum }));
         }
@@ -78,6 +78,16 @@ namespace Keeper.MercuryCore.Session.Internal
             var data = this.textEncoding.GetBytes(message + "\r\n");
 
             return send(new ArraySegment<byte>(data));
+        }
+
+        public void Signal(SignalType type, Action<SignalType> next)
+        {
+            if (type == SignalType.ConnectionClosed)
+            {
+                this.lineAccumulator.Complete();
+            }
+
+            next(type);
         }
     }
 }

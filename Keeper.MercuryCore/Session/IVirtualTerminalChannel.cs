@@ -8,5 +8,7 @@ namespace Keeper.MercuryCore.Session
     public interface IVirtualTerminalChannel
     {
         Task SendEscapeSequenceAsync(string sequence);
+
+        event Action EscapeReceived;
     }
 }

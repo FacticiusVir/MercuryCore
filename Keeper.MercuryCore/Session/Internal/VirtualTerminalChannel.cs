@@ -10,9 +10,21 @@ namespace Keeper.MercuryCore.Session.Internal
     {
         private Func<ArraySegment<byte>, Task> send;
 
+        public event Action EscapeReceived;
+
         public Func<ArraySegment<byte>, Task> Bind(Func<ArraySegment<byte>, Task> send) => this.send = send;
 
-        public void Handle(byte datum, Action<byte> nextHandle, Action<SignalType> nextSignal) => nextHandle(datum);
+        public void Handle(byte datum, Action<byte> nextHandle, Action<SignalType> nextSignal)
+        {
+            if (datum == 0x1b)
+            {
+                this.EscapeReceived?.Invoke();
+            }
+            else
+            {
+                nextHandle(datum);
+            }
+        }
 
         public async Task SendEscapeSequenceAsync(string sequence) => await send(Encoding.ASCII.GetBytes((char)0x1b + sequence));
 

@@ -74,14 +74,19 @@ namespace Keeper.MercuryCore.Pipeline.Internal
                         send = channel.Bind(send);
                     }
 
-                    connection.Receive.LinkTo(new ActionBlock<ArraySegment<byte>>(data =>
+                    connection.Receive.LinkTo(new ActionBlock<(ArraySegment<byte> Data, bool IsComplete)>(frame =>
                     {
-                        foreach (var datum in data)
+                        this.logger.LogDebug("Received {ByteCount} bytes.", frame.Data.Count);
+
+                        foreach (var datum in frame.Data)
                         {
                             stack(datum);
                         }
 
-                        signalStack(SignalType.EndOfFrame);
+                        if (frame.IsComplete)
+                        {
+                            signalStack(SignalType.EndOfFrame);
+                        }
                     }));
 
                     Func<Task> pipeline = () => Task.CompletedTask;

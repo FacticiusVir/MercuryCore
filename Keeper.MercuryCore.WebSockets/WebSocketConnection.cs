@@ -16,11 +16,11 @@ namespace Keeper.MercuryCore.WebSockets
         private WebSocket socket;
         private readonly long connectionTime;
 
-        private ActionBlock<ArraySegment<byte>> sendBlock;
-        private BufferBlock<ArraySegment<byte>> receiveBlock;
+        private readonly ActionBlock<ArraySegment<byte>> sendBlock;
+        private readonly BufferBlock<(ArraySegment<byte>, bool)> receiveBlock;
 
         private bool isClosed;
-        private TaskCompletionSource<object> closed = new TaskCompletionSource<object>();
+        private readonly TaskCompletionSource<object> closed = new TaskCompletionSource<object>();
 
         public WebSocketConnection(string endpointName, WebSocket socket)
         {
@@ -31,14 +31,14 @@ namespace Keeper.MercuryCore.WebSockets
 
             this.sendBlock = new ActionBlock<ArraySegment<byte>>(this.SendAsync, new ExecutionDataflowBlockOptions { BoundedCapacity = 1, MaxDegreeOfParallelism = 1 });
 
-            this.receiveBlock = new BufferBlock<ArraySegment<byte>>(new DataflowBlockOptions { BoundedCapacity = DataflowBlockOptions.Unbounded });
+            this.receiveBlock = new BufferBlock<(ArraySegment<byte>, bool)>(new DataflowBlockOptions { BoundedCapacity = DataflowBlockOptions.Unbounded });
 
             this.BeginReceive();
         }
 
         public ITargetBlock<ArraySegment<byte>> Send => this.sendBlock;
 
-        public IReceivableSourceBlock<ArraySegment<byte>> Receive => this.receiveBlock;
+        public IReceivableSourceBlock<(ArraySegment<byte>, bool)> Receive => this.receiveBlock;
 
         public Task Closed => this.closed.Task;
 
@@ -76,7 +76,7 @@ namespace Keeper.MercuryCore.WebSockets
                     }
                     else
                     {
-                        await this.receiveBlock.SendAsync(new ArraySegment<byte>(data, 0, result.Count));
+                        await this.receiveBlock.SendAsync((new ArraySegment<byte>(data, 0, result.Count), result.EndOfMessage));
 
                         this.BeginReceive();
                     }

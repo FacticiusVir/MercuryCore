@@ -19,7 +19,7 @@ namespace Keeper.MercuryCore.Tcp
         private readonly long connectionTime;
 
         private ActionBlock<ArraySegment<byte>> sendBlock;
-        private BufferBlock<ArraySegment<byte>> receiveBlock;
+        private BufferBlock<(ArraySegment<byte>, bool)> receiveBlock;
 
         private bool isClosed;
         private TaskCompletionSource<object> closed = new TaskCompletionSource<object>();
@@ -46,7 +46,7 @@ namespace Keeper.MercuryCore.Tcp
 
             this.sendBlock = new ActionBlock<ArraySegment<byte>>(this.SendAsync, new ExecutionDataflowBlockOptions { BoundedCapacity = 1, MaxDegreeOfParallelism = 1 });
 
-            this.receiveBlock = new BufferBlock<ArraySegment<byte>>(new DataflowBlockOptions { BoundedCapacity = DataflowBlockOptions.Unbounded });
+            this.receiveBlock = new BufferBlock<(ArraySegment<byte>, bool)>(new DataflowBlockOptions { BoundedCapacity = DataflowBlockOptions.Unbounded });
 
             this.BeginReceive();
         }
@@ -71,7 +71,7 @@ namespace Keeper.MercuryCore.Tcp
 
         public ITargetBlock<ArraySegment<byte>> Send => this.sendBlock;
 
-        public IReceivableSourceBlock<ArraySegment<byte>> Receive => this.receiveBlock;
+        public IReceivableSourceBlock<(ArraySegment<byte>, bool)> Receive => this.receiveBlock;
 
         public string EndpointName => this.endpointName;
 
@@ -106,7 +106,7 @@ namespace Keeper.MercuryCore.Tcp
                     }
                     else
                     {
-                        await this.receiveBlock.SendAsync(new ArraySegment<byte>(data, 0, count));
+                        await this.receiveBlock.SendAsync((new ArraySegment<byte>(data, 0, count), true));
 
                         this.BeginReceive();
                     }

@@ -8,7 +8,7 @@ namespace Keeper.MercuryCore.Pipeline
     {
         ITargetBlock<ArraySegment<byte>> Send { get; }
 
-        IReceivableSourceBlock<ArraySegment<byte>> Receive { get; }
+        IReceivableSourceBlock<(ArraySegment<byte>, bool)> Receive { get; }
 
         Task Closed { get; }
 
